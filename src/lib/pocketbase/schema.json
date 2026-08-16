@@ -1,0 +1,254 @@
+{
+  "generatedAt": "2026-08-16T23:53:27.941Z",
+  "collections": [
+    {
+      "name": "users",
+      "type": "auth",
+      "apiRules": {
+        "list": "id = @request.auth.id",
+        "view": "id = @request.auth.id",
+        "create": "",
+        "update": "id = @request.auth.id",
+        "delete": "id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "avatar",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
+        "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
+      ]
+    },
+    {
+      "name": "diagnosticos",
+      "type": "base",
+      "apiRules": {
+        "list": "",
+        "view": "",
+        "create": "",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "whatsapp",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "email",
+          "type": "email",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "instagram",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cidade_estado",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "momento_atual",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tem_negocio",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nome_empresa",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "segmento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tempo_empresa",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tamanho_equipe",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "faixa_faturamento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "areas_avancar",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "dor_principal",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "realidade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notas_gestao",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "lidera_pessoas",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "desafio_lideranca",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "conhecimento_experiencia",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "transformar_oferta",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "desejo_transformacao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "objetivo_financeiro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "impedimentos",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tipo_apoio",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nivel_prioridade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "disposicao_investimento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "porque_importante",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "solucao_recomendada",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "temperatura_lead",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_diag_email ON diagnosticos (email)",
+        "CREATE INDEX idx_diag_created ON diagnosticos (created DESC)",
+        "CREATE INDEX idx_diag_temperatura ON diagnosticos (temperatura_lead)"
+      ]
+    }
+  ]
+}
