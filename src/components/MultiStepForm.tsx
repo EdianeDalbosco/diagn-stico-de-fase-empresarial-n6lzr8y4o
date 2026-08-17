@@ -80,6 +80,14 @@ export const MultiStepForm: React.FC = () => {
           setErrorMessage('Por favor, informe um e-mail válido.')
           return false
         }
+        if (!formData.instagram.trim()) {
+          setErrorMessage('Por favor, informe seu Instagram.')
+          return false
+        }
+        if (!formData.cidade_estado.trim()) {
+          setErrorMessage('Por favor, informe sua cidade e estado.')
+          return false
+        }
         return true
       }
       case 2: {

@@ -155,12 +155,12 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="instagram" className="text-sm font-bold text-[#0A1E4A]">
-            Instagram <span className="text-xs text-[#718096] font-normal">(opcional)</span>
+            Instagram <span className="text-rose-500">*</span>
           </Label>
           <Input
             id="instagram"
             type="text"
-            placeholder="@seu.perfil"
+            placeholder="Digite seu @ do Instagram"
             value={formData.instagram}
             onChange={(e) => updateFormData({ instagram: e.target.value })}
             className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
@@ -169,7 +169,7 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
 
         <div className="space-y-1.5">
           <Label htmlFor="cidade_estado" className="text-sm font-bold text-[#0A1E4A]">
-            Cidade / Estado <span className="text-xs text-[#718096] font-normal">(opcional)</span>
+            Cidade / Estado <span className="text-rose-500">*</span>
           </Label>
           <Input
             id="cidade_estado"
