@@ -21,7 +21,7 @@ export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart }) => 
       </div>
 
       {/* Mensagens Oficiais Conforme Requisitos */}
-      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0A1E4A] mb-4 leading-snug">
+      <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-4 leading-snug">
         Obrigada por responder ao Diagnóstico de Fase Empresarial.
       </h2>
 
@@ -32,7 +32,7 @@ export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart }) => 
         </p>
 
         <p className="text-white/60 text-xs sm:text-sm font-medium">
-          A equipe <span className="text-[#0A1E4A] font-bold">Edvanced</span> poderá entrar em
+          A equipe <span className="text-[#B69D64] font-bold">Edvanced</span> poderá entrar em
           contato caso identifique uma solução compatível com o seu momento.
         </p>
       </div>
@@ -63,8 +63,8 @@ export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart }) => 
       )}
 
       {/* Rodapé */}
-      <div className="mt-10 pt-6 border-t border-[#E2E8F0] w-full max-w-xs text-center">
-        <p className="text-xs text-[#8C753E] font-bold tracking-widest uppercase">
+      <div className="mt-10 pt-6 border-t border-white/20 w-full max-w-xs text-center">
+        <p className="text-xs text-[#B69D64] font-bold tracking-widest uppercase">
           EDVANCED &middot; SOLUÇÕES EMPRESARIAIS
         </p>
       </div>

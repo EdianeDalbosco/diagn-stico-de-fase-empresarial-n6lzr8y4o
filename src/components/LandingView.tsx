@@ -16,17 +16,17 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       </div>
 
       {/* Título Principal */}
-      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0A1E4A] mb-3 leading-tight sm:leading-tight">
+      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 leading-tight sm:leading-tight">
         Diagnóstico de Fase Empresarial
       </h1>
 
       {/* Subtítulo */}
-      <p className="text-base sm:text-lg font-medium text-[#B69D64] mb-4 max-w-lg tracking-wide uppercase font-semibold">
+      <p className="text-base sm:text-lg font-medium text-[#D4B87A] mb-4 max-w-lg tracking-wide uppercase font-semibold">
         Hub de Desenvolvimento &amp; Soluções Empresariais
       </p>
 
       {/* Texto de apoio */}
-      <p className="text-sm sm:text-base text-[#4A5568] mb-8 max-w-lg leading-relaxed">
+      <p className="text-sm sm:text-base text-white/70 mb-8 max-w-lg leading-relaxed">
         Descubra qual é o próximo passo para o seu negócio, sua carreira ou sua liderança. Em poucos
         minutos, identifique quais pontos hoje mais limitam o seu crescimento e receba a orientação
         estratégica ideal.
@@ -40,7 +40,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           </div>
           <div>
             <h4 className="text-xs font-bold text-[#0A1E4A]">Clareza</h4>
-            <p className="text-[11px] text-[#5A6E85] leading-snug">
+            <p className="text-[11px] text-[#4A5568] leading-snug">
               Visão exata dos seus gargalos atuais
             </p>
           </div>
@@ -52,7 +52,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           </div>
           <div>
             <h4 className="text-xs font-bold text-[#0A1E4A]">Estrutura</h4>
-            <p className="text-[11px] text-[#5A6E85] leading-snug">Gestão, liderança e processos</p>
+            <p className="text-[11px] text-[#4A5568] leading-snug">Gestão, liderança e processos</p>
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           </div>
           <div>
             <h4 className="text-xs font-bold text-[#0A1E4A]">Direção</h4>
-            <p className="text-[11px] text-[#5A6E85] leading-snug">
+            <p className="text-[11px] text-[#4A5568] leading-snug">
               Próximos passos para gerar resultados
             </p>
           </div>
@@ -80,7 +80,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           <span className="ml-2 font-mono text-lg text-[#B69D64]">&rarr;</span>
         </Button>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-[#5A6E85] font-medium">
+        <div className="flex items-center justify-center gap-2 text-xs text-white/60 font-medium">
           <ShieldCheck className="w-4 h-4 text-[#B69D64]" />
           <span>Leva apenas 3 a 5 minutos &middot; Seguro e sem custo</span>
         </div>
@@ -88,7 +88,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
 
       {/* Assinatura / Rodapé da landing */}
       <div className="mt-12 pt-6 border-t border-white/15 w-full max-w-xs text-center">
-        <p className="text-xs text-[#8C753E] font-bold tracking-widest uppercase">
+        <p className="text-xs text-[#B69D64] font-bold tracking-widest uppercase">
           EDVANCED &middot; SOLUÇÕES EMPRESARIAIS
         </p>
       </div>
