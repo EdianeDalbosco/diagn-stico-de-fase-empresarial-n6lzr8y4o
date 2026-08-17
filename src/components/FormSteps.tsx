@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Slider } from '@/components/ui/slider'
-import { Check, AlertCircle } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface StepProps {
@@ -23,22 +23,20 @@ const RadioOption: React.FC<{
     type="button"
     onClick={onClick}
     className={cn(
-      'w-full p-3.5 sm:p-4 text-left rounded-xl border transition-all duration-150 flex items-start justify-between gap-3 text-sm sm:text-base font-normal',
+      'w-full p-3.5 sm:p-4 text-left rounded-xl border transition-all duration-200 flex items-start justify-between gap-3 text-sm sm:text-base font-medium shadow-sm',
       selected
-        ? 'bg-indigo-600/15 border-indigo-500 text-white shadow-sm ring-1 ring-indigo-500/50'
-        : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:bg-slate-850 hover:border-slate-700 hover:text-white',
+        ? 'bg-[#0A1E4A]/5 border-[#0A1E4A] text-[#0A1E4A] ring-2 ring-[#B69D64]/60 shadow-md'
+        : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA] hover:border-[#B69D64]/50 hover:text-[#0A1E4A]',
     )}
   >
     <span className="flex-1 leading-snug">{label}</span>
     <div
       className={cn(
         'w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors',
-        selected
-          ? 'border-indigo-500 bg-indigo-600 text-white'
-          : 'border-slate-700 bg-slate-950/50',
+        selected ? 'border-[#0A1E4A] bg-[#0A1E4A] text-[#B69D64]' : 'border-[#CBD5E0] bg-white',
       )}
     >
-      {selected && <div className="w-2 h-2 rounded-full bg-white" />}
+      {selected && <div className="w-2 h-2 rounded-full bg-[#B69D64]" />}
     </div>
   </button>
 )
@@ -55,24 +53,22 @@ const CheckboxOption: React.FC<{
     onClick={onClick}
     disabled={disabled && !selected}
     className={cn(
-      'w-full p-3 sm:p-3.5 text-left rounded-xl border transition-all duration-150 flex items-start justify-between gap-3 text-sm font-normal',
+      'w-full p-3 sm:p-3.5 text-left rounded-xl border transition-all duration-200 flex items-start justify-between gap-3 text-sm font-medium shadow-sm',
       selected
-        ? 'bg-indigo-600/15 border-indigo-500 text-white ring-1 ring-indigo-500/50'
+        ? 'bg-[#0A1E4A]/5 border-[#0A1E4A] text-[#0A1E4A] ring-2 ring-[#B69D64]/60'
         : disabled
-          ? 'opacity-40 bg-slate-900/30 border-slate-800/40 text-slate-500 cursor-not-allowed'
-          : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:bg-slate-850 hover:border-slate-700 hover:text-white',
+          ? 'opacity-40 bg-[#EDF2F7] border-[#E2E8F0] text-[#A0AEC0] cursor-not-allowed'
+          : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA] hover:border-[#B69D64]/50 hover:text-[#0A1E4A]',
     )}
   >
     <span className="flex-1 leading-snug">{label}</span>
     <div
       className={cn(
         'w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors',
-        selected
-          ? 'border-indigo-500 bg-indigo-600 text-white'
-          : 'border-slate-700 bg-slate-950/50',
+        selected ? 'border-[#0A1E4A] bg-[#0A1E4A] text-[#B69D64]' : 'border-[#CBD5E0] bg-white',
       )}
     >
-      {selected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+      {selected && <Check className="w-3.5 h-3.5 stroke-[3] text-[#B69D64]" />}
     </div>
   </button>
 )
@@ -84,8 +80,8 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="nome" className="text-sm font-medium text-slate-200">
-          Nome completo <span className="text-rose-400">*</span>
+        <Label htmlFor="nome" className="text-sm font-bold text-[#0A1E4A]">
+          Nome completo <span className="text-rose-500">*</span>
         </Label>
         <Input
           id="nome"
@@ -93,13 +89,13 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
           placeholder="Digite seu nome completo"
           value={formData.nome}
           onChange={(e) => updateFormData({ nome: e.target.value })}
-          className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-11"
+          className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="whatsapp" className="text-sm font-medium text-slate-200">
-          WhatsApp com DDD <span className="text-rose-400">*</span>
+        <Label htmlFor="whatsapp" className="text-sm font-bold text-[#0A1E4A]">
+          WhatsApp com DDD <span className="text-rose-500">*</span>
         </Label>
         <Input
           id="whatsapp"
@@ -107,13 +103,13 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
           placeholder="(00) 00000-0000"
           value={formData.whatsapp}
           onChange={(e) => updateFormData({ whatsapp: e.target.value })}
-          className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-11"
+          className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-sm font-medium text-slate-200">
-          E-mail principal <span className="text-rose-400">*</span>
+        <Label htmlFor="email" className="text-sm font-bold text-[#0A1E4A]">
+          E-mail principal <span className="text-rose-500">*</span>
         </Label>
         <Input
           id="email"
@@ -121,14 +117,14 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
           placeholder="seuemail@exemplo.com"
           value={formData.email}
           onChange={(e) => updateFormData({ email: e.target.value })}
-          className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-11"
+          className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="instagram" className="text-sm font-medium text-slate-200">
-            Instagram <span className="text-xs text-slate-400 font-normal">(opcional)</span>
+          <Label htmlFor="instagram" className="text-sm font-bold text-[#0A1E4A]">
+            Instagram <span className="text-xs text-[#718096] font-normal">(opcional)</span>
           </Label>
           <Input
             id="instagram"
@@ -136,13 +132,13 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
             placeholder="@seu.perfil"
             value={formData.instagram}
             onChange={(e) => updateFormData({ instagram: e.target.value })}
-            className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-11"
+            className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="cidade_estado" className="text-sm font-medium text-slate-200">
-            Cidade / Estado <span className="text-xs text-slate-400 font-normal">(opcional)</span>
+          <Label htmlFor="cidade_estado" className="text-sm font-bold text-[#0A1E4A]">
+            Cidade / Estado <span className="text-xs text-[#718096] font-normal">(opcional)</span>
           </Label>
           <Input
             id="cidade_estado"
@@ -150,7 +146,7 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
             placeholder="Ex: São Paulo / SP"
             value={formData.cidade_estado}
             onChange={(e) => updateFormData({ cidade_estado: e.target.value })}
-            className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-11"
+            className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
           />
         </div>
       </div>
@@ -219,8 +215,8 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-sm font-medium text-slate-200">
-          Você possui um negócio atualmente? <span className="text-rose-400">*</span>
+        <Label className="text-sm font-bold text-[#0A1E4A]">
+          Você possui um negócio atualmente? <span className="text-rose-500">*</span>
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {statusNegocio.map((item) => (
@@ -229,10 +225,10 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
               type="button"
               onClick={() => updateFormData({ tem_negocio: item })}
               className={cn(
-                'p-3 text-center rounded-xl border text-sm font-medium transition-all',
+                'p-3 text-center rounded-xl border text-sm font-bold transition-all shadow-sm',
                 formData.tem_negocio === item
-                  ? 'bg-indigo-600/20 border-indigo-500 text-white ring-1 ring-indigo-500/50'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white',
+                  ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
+                  : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA] hover:border-[#B69D64]',
               )}
             >
               {item}
@@ -243,10 +239,10 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
 
       {/* Se SIM ou se ESTOU ESTRUTURANDO, mostrar detalhes adicionais */}
       {formData.tem_negocio === 'Sim' && (
-        <div className="space-y-5 pt-4 border-t border-slate-800/80 animate-fade-in">
+        <div className="space-y-5 pt-4 border-t border-[#E2E8F0] animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="nome_empresa" className="text-xs font-medium text-slate-300">
+              <Label htmlFor="nome_empresa" className="text-xs font-bold text-[#0A1E4A]">
                 Nome da empresa
               </Label>
               <Input
@@ -254,12 +250,12 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                 placeholder="Ex: Minha Empresa"
                 value={formData.nome_empresa}
                 onChange={(e) => updateFormData({ nome_empresa: e.target.value })}
-                className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-10"
+                className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-10 rounded-xl shadow-sm"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="segmento" className="text-xs font-medium text-slate-300">
+              <Label htmlFor="segmento" className="text-xs font-bold text-[#0A1E4A]">
                 Segmento de atuação
               </Label>
               <Input
@@ -267,13 +263,13 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                 placeholder="Ex: Consultoria, Saúde, Varejo, etc."
                 value={formData.segmento}
                 onChange={(e) => updateFormData({ segmento: e.target.value })}
-                className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 h-10"
+                className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-10 rounded-xl shadow-sm"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-slate-300">
+            <Label className="text-xs font-bold text-[#0A1E4A]">
               Há quanto tempo a empresa existe?
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -283,10 +279,10 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                   type="button"
                   onClick={() => updateFormData({ tempo_empresa: tempo })}
                   className={cn(
-                    'p-2.5 text-xs text-center rounded-lg border transition-all',
+                    'p-2.5 text-xs text-center font-medium rounded-xl border transition-all shadow-sm',
                     formData.tempo_empresa === tempo
-                      ? 'bg-indigo-600/20 border-indigo-500 text-white ring-1 ring-indigo-500'
-                      : 'bg-slate-900/50 border-slate-800 text-slate-300 hover:bg-slate-800',
+                      ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
+                      : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
                   )}
                 >
                   {tempo}
@@ -296,7 +292,7 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-slate-300">
+            <Label className="text-xs font-bold text-[#0A1E4A]">
               Quantas pessoas fazem parte da equipe?
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -306,10 +302,10 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                   type="button"
                   onClick={() => updateFormData({ tamanho_equipe: eq })}
                   className={cn(
-                    'p-2.5 text-xs text-center rounded-lg border transition-all',
+                    'p-2.5 text-xs text-center font-medium rounded-xl border transition-all shadow-sm',
                     formData.tamanho_equipe === eq
-                      ? 'bg-indigo-600/20 border-indigo-500 text-white ring-1 ring-indigo-500'
-                      : 'bg-slate-900/50 border-slate-800 text-slate-300 hover:bg-slate-800',
+                      ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
+                      : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
                   )}
                 >
                   {eq}
@@ -319,7 +315,7 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-medium text-slate-300">
+            <Label className="text-xs font-bold text-[#0A1E4A]">
               Qual é aproximadamente o faturamento médio mensal atual?
             </Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -329,15 +325,15 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                   type="button"
                   onClick={() => updateFormData({ faixa_faturamento: fat })}
                   className={cn(
-                    'p-2.5 text-xs text-left rounded-lg border transition-all flex items-center justify-between',
+                    'p-2.5 text-xs font-medium text-left rounded-xl border transition-all flex items-center justify-between shadow-sm',
                     formData.faixa_faturamento === fat
-                      ? 'bg-indigo-600/20 border-indigo-500 text-white ring-1 ring-indigo-500'
-                      : 'bg-slate-900/50 border-slate-800 text-slate-300 hover:bg-slate-800',
+                      ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
+                      : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
                   )}
                 >
                   <span>{fat}</span>
                   {formData.faixa_faturamento === fat && (
-                    <Check className="w-3.5 h-3.5 text-indigo-400" />
+                    <Check className="w-3.5 h-3.5 text-[#B69D64]" />
                   )}
                 </button>
               ))}
@@ -397,15 +393,15 @@ export const Step4: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs px-1">
-        <span className="text-slate-400">Selecione até 3 opções</span>
+        <span className="text-[#5A6E85] font-medium">Selecione até 3 opções</span>
         <span
           className={cn(
-            'px-2 py-0.5 rounded-full font-medium',
+            'px-2.5 py-0.5 rounded-full font-bold',
             selectedCount === 3
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+              ? 'bg-[#B69D64]/20 text-[#8C753E] border border-[#B69D64]/40'
               : selectedCount > 0
-                ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30'
-                : 'bg-slate-800 text-slate-400',
+                ? 'bg-[#0A1E4A]/10 text-[#0A1E4A] border border-[#0A1E4A]/30'
+                : 'bg-[#E2E8F0] text-[#718096]',
           )}
         >
           {selectedCount} de 3 selecionadas
@@ -437,7 +433,7 @@ export const Step4: React.FC<StepProps> = ({ formData, updateFormData }) => {
 export const Step5: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-[#5A6E85] font-medium">
         Seja o mais específico(a) possível. Isso nos ajuda a entender a urgência e o tamanho do
         gargalo.
       </p>
@@ -446,9 +442,9 @@ export const Step5: React.FC<StepProps> = ({ formData, updateFormData }) => {
         rows={6}
         value={formData.dor_principal}
         onChange={(e) => updateFormData({ dor_principal: e.target.value })}
-        className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 resize-none text-sm leading-relaxed p-4 rounded-xl"
+        className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] resize-none text-sm leading-relaxed p-4 rounded-xl shadow-sm"
       />
-      <div className="text-right text-[11px] text-slate-500">
+      <div className="text-right text-[11px] text-[#718096] font-medium">
         {formData.dor_principal.length} caracteres
       </div>
     </div>
@@ -555,7 +551,7 @@ export const Step7: React.FC<StepProps> = ({ formData, updateFormData }) => {
 
   return (
     <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-2">
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-[#5A6E85] font-medium">
         Dê uma nota sincera de 0 (muito fraco / inexistente) a 10 (excelente / estruturado):
       </p>
 
@@ -564,21 +560,21 @@ export const Step7: React.FC<StepProps> = ({ formData, updateFormData }) => {
         return (
           <div
             key={area.key}
-            className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5"
+            className="p-4 rounded-xl bg-white border border-[#E2E8F0] shadow-sm space-y-3"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <h4 className="text-sm font-semibold text-white">{area.label}</h4>
-                <p className="text-[11px] text-slate-400">{area.description}</p>
+                <h4 className="text-sm font-bold text-[#0A1E4A]">{area.label}</h4>
+                <p className="text-[11px] text-[#5A6E85] font-medium">{area.description}</p>
               </div>
               <div
                 className={cn(
-                  'w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0',
+                  'w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm shrink-0 border shadow-sm',
                   val >= 8
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                    ? 'bg-[#B69D64]/15 text-[#8C753E] border-[#B69D64]'
                     : val >= 5
-                      ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/40'
-                      : 'bg-rose-500/20 text-rose-400 border border-rose-500/40',
+                      ? 'bg-[#0A1E4A]/10 text-[#0A1E4A] border-[#0A1E4A]/40'
+                      : 'bg-rose-50 text-rose-600 border-rose-200',
                 )}
               >
                 {val}
@@ -594,7 +590,7 @@ export const Step7: React.FC<StepProps> = ({ formData, updateFormData }) => {
                 onValueChange={([newVal]) => handleSliderChange(area.key, newVal)}
                 className="cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 mt-1.5 px-0.5">
+              <div className="flex justify-between text-[10px] text-[#718096] font-semibold mt-2 px-0.5">
                 <span>0 (Crítico)</span>
                 <span>5 (Médio)</span>
                 <span>10 (Excelente)</span>
@@ -640,8 +636,8 @@ export const Step8: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2.5">
-        <Label className="text-sm font-medium text-slate-200">
-          Hoje você lidera pessoas? <span className="text-rose-400">*</span>
+        <Label className="text-sm font-bold text-[#0A1E4A]">
+          Hoje você lidera pessoas? <span className="text-rose-500">*</span>
         </Label>
         {lideraOptions.map((opt) => (
           <RadioOption
@@ -654,8 +650,8 @@ export const Step8: React.FC<StepProps> = ({ formData, updateFormData }) => {
       </div>
 
       {isLider && (
-        <div className="space-y-3 pt-4 border-t border-slate-800 animate-fade-in">
-          <Label className="text-sm font-medium text-slate-200">
+        <div className="space-y-3 pt-4 border-t border-[#E2E8F0] animate-fade-in">
+          <Label className="text-sm font-bold text-[#0A1E4A]">
             Qual é hoje o seu maior desafio como líder?
           </Label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[40vh] overflow-y-auto pr-1">
@@ -691,10 +687,10 @@ export const Step9: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2.5">
-        <Label className="text-sm font-medium text-slate-200 leading-snug">
+        <Label className="text-sm font-bold text-[#0A1E4A] leading-snug">
           Você possui algum conhecimento, experiência ou metodologia que poderia se transformar em
           um produto, serviço, mentoria, treinamento ou nova fonte de receita?{' '}
-          <span className="text-rose-400">*</span>
+          <span className="text-rose-500">*</span>
         </Label>
         {options1.map((opt) => (
           <RadioOption
@@ -706,8 +702,8 @@ export const Step9: React.FC<StepProps> = ({ formData, updateFormData }) => {
         ))}
       </div>
 
-      <div className="space-y-2.5 pt-4 border-t border-slate-800">
-        <Label className="text-sm font-medium text-slate-200">
+      <div className="space-y-2.5 pt-4 border-t border-[#E2E8F0]">
+        <Label className="text-sm font-bold text-[#0A1E4A]">
           Você gostaria de transformar sua experiência em uma oferta mais clara e comercializável?
         </Label>
         <div className="grid grid-cols-3 gap-2.5">
@@ -717,10 +713,10 @@ export const Step9: React.FC<StepProps> = ({ formData, updateFormData }) => {
               type="button"
               onClick={() => updateFormData({ transformar_oferta: opt })}
               className={cn(
-                'p-3 text-center rounded-xl border text-sm font-medium transition-all',
+                'p-3 text-center rounded-xl border text-sm font-bold transition-all shadow-sm',
                 formData.transformar_oferta === opt
-                  ? 'bg-indigo-600/20 border-indigo-500 text-white ring-1 ring-indigo-500/50'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white',
+                  ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
+                  : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
               )}
             >
               {opt}
@@ -829,7 +825,7 @@ export const Step12: React.FC<StepProps> = ({ formData, updateFormData }) => {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">Pode marcar quantos você identificar:</p>
+      <p className="text-xs text-[#5A6E85] font-medium">Pode marcar quantos você identificar:</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[55vh] overflow-y-auto pr-1">
         {options.map((opt) => {
           const isSelected = formData.impedimentos?.includes(opt) || false
@@ -932,7 +928,7 @@ export const Step15: React.FC<StepProps> = ({ formData, updateFormData }) => {
 export const Step16: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-[#5A6E85] font-medium">
         O que muda na sua vida, no seu negócio ou na sua carreira quando esse problema for
         resolvido?
       </p>
@@ -941,9 +937,9 @@ export const Step16: React.FC<StepProps> = ({ formData, updateFormData }) => {
         rows={6}
         value={formData.porque_importante}
         onChange={(e) => updateFormData({ porque_importante: e.target.value })}
-        className="bg-slate-900/70 border-slate-800 focus:border-indigo-500 text-white placeholder:text-slate-500 resize-none text-sm leading-relaxed p-4 rounded-xl"
+        className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] resize-none text-sm leading-relaxed p-4 rounded-xl shadow-sm"
       />
-      <div className="text-right text-[11px] text-slate-500">
+      <div className="text-right text-[11px] text-[#718096] font-medium">
         {formData.porque_importante.length} caracteres
       </div>
     </div>

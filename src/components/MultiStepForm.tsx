@@ -355,7 +355,7 @@ export const MultiStepForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#080c14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] text-slate-100 flex flex-col justify-between">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#0A1E4A] flex flex-col justify-between">
       {/* Header Fixo */}
       <Header
         currentStep={currentStep}
@@ -365,33 +365,35 @@ export const MultiStepForm: React.FC = () => {
       />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 flex items-center justify-center py-6 px-4">
+      <main className="flex-1 flex items-center justify-center py-6 sm:py-8 px-4">
         {!hasStarted ? (
           <LandingView onStart={handleStart} />
         ) : isCompleted ? (
           <CompletionView onRestart={handleRestart} />
         ) : (
-          <div className="w-full max-w-xl mx-auto bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-5 sm:p-8 shadow-2xl animate-fade-in flex flex-col justify-between">
+          <div className="w-full max-w-2xl mx-auto bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-8 shadow-xl shadow-[#0A1E4A]/5 animate-fade-in flex flex-col justify-between">
             {/* Cabeçalho da Etapa Atual */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between text-xs font-semibold text-indigo-400 mb-1">
+            <div className="mb-6 pb-4 border-b border-[#E2E8F0]">
+              <div className="flex items-center justify-between text-xs font-bold text-[#B69D64] tracking-wider mb-1 uppercase">
                 <span>
                   ETAPA {currentStep} DE {totalSteps}
                 </span>
-                <span>{Math.round((currentStep / totalSteps) * 100)}%</span>
+                <span className="font-semibold text-[#0A1E4A]">
+                  {Math.round((currentStep / totalSteps) * 100)}% CONCLUÍDO
+                </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight leading-snug">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#0A1E4A] tracking-tight leading-snug">
                 {stepHeadings[currentStep]?.title}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#5A6E85] font-medium mt-1.5 leading-relaxed">
                 {stepHeadings[currentStep]?.subtitle}
               </p>
             </div>
 
             {/* Mensagem de Erro de Validação */}
             {errorMessage && (
-              <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5 text-xs sm:text-sm text-rose-300 animate-fade-in">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-xs sm:text-sm text-rose-700 font-medium animate-fade-in shadow-sm">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
@@ -400,14 +402,14 @@ export const MultiStepForm: React.FC = () => {
             <div className="my-2">{renderCurrentStep()}</div>
 
             {/* Controles de Navegação (Voltar / Avançar / Enviar) */}
-            <div className="mt-8 pt-5 border-t border-slate-800 flex items-center justify-between gap-3">
+            <div className="mt-8 pt-5 border-t border-[#E2E8F0] flex items-center justify-between gap-3">
               {currentStep > 1 ? (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handlePrev}
                   disabled={isSubmitting}
-                  className="px-4 h-11 rounded-xl border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  className="px-5 h-11 rounded-xl border-[#CBD5E0] text-[#0A1E4A] hover:bg-[#F8F9FA] hover:text-[#0A1E4A] font-semibold"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1.5" />
                   Voltar
@@ -420,22 +422,22 @@ export const MultiStepForm: React.FC = () => {
                 type="button"
                 onClick={handleNext}
                 disabled={isSubmitting}
-                className="ml-auto px-6 h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all"
+                className="ml-auto px-7 h-11 rounded-xl bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin text-[#B69D64]" />
                     Enviando Diagnóstico...
                   </>
                 ) : currentStep === totalSteps ? (
                   <>
                     Enviar Diagnóstico
-                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                    <ArrowRight className="w-4 h-4 ml-1.5 text-[#B69D64]" />
                   </>
                 ) : (
                   <>
                     Avançar
-                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                    <ArrowRight className="w-4 h-4 ml-1.5 text-[#B69D64]" />
                   </>
                 )}
               </Button>
@@ -445,10 +447,10 @@ export const MultiStepForm: React.FC = () => {
       </main>
 
       {/* Rodapé Minimalista */}
-      <footer className="py-4 text-center text-xs text-slate-600">
+      <footer className="py-4 text-center text-xs text-[#718096] font-medium border-t border-[#E2E8F0]/60 bg-white/50">
         <p>
-          Edvanced &copy; {new Date().getFullYear()} &middot; Diagnóstico Estratégico de Fase
-          Empresarial
+          EDVANCED &copy; {new Date().getFullYear()} &middot; Hub de Desenvolvimento &amp; Soluções
+          Empresariais
         </p>
       </footer>
     </div>
