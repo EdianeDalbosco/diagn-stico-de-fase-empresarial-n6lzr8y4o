@@ -13,6 +13,18 @@ interface StepProps {
   error?: string | null
 }
 
+// Formata número de telefone brasileiro enquanto o usuário digita.
+// Aceita 10 dígitos (fixo: (XX) XXXX-XXXX) ou 11 dígitos (celular: (XX) XXXXX-XXXX).
+// Retorna apenas a string formatada; quem chama deve guardar apenas os dígitos.
+const formatPhone = (digits: string): string => {
+  const clean = digits.replace(/\D/g, '').slice(0, 11)
+  if (clean.length === 0) return ''
+  if (clean.length <= 2) return `(${clean}`
+  if (clean.length <= 6) return `(${clean.slice(0, 2)}) ${clean.slice(2)}`
+  if (clean.length <= 10) return `(${clean.slice(0, 2)}) ${clean.slice(2, 6)}-${clean.slice(6)}`
+  return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`
+}
+
 // Option item helper component
 const RadioOption: React.FC<{
   label: string
@@ -77,6 +89,24 @@ const CheckboxOption: React.FC<{
 // ETAPA 1: QUEM É VOCÊ?
 // -------------------------------------------------------------
 export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
+  // O input exibe o número formatado, mas o formData.whatsapp guarda apenas os dígitos.
+  const [whatsappDisplay, setWhatsappDisplay] = React.useState(() => formatPhone(formData.whatsapp))
+
+  // Sincroniza o display caso o formData.whatsapp seja alterado externamente.
+  React.useEffect(() => {
+    const currentDigits = whatsappDisplay.replace(/\D/g, '')
+    if (currentDigits !== formData.whatsapp) {
+      setWhatsappDisplay(formatPhone(formData.whatsapp))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.whatsapp])
+
+  const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 11)
+    setWhatsappDisplay(formatPhone(digits))
+    updateFormData({ whatsapp: digits })
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
@@ -100,9 +130,10 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
         <Input
           id="whatsapp"
           type="tel"
+          inputMode="numeric"
           placeholder="(00) 00000-0000"
-          value={formData.whatsapp}
-          onChange={(e) => updateFormData({ whatsapp: e.target.value })}
+          value={whatsappDisplay}
+          onChange={handleWhatsappChange}
           className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
         />
       </div>
