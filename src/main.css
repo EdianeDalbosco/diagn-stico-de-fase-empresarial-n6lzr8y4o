@@ -65,12 +65,8 @@
       'Segoe UI',
       Roboto,
       sans-serif;
-    background-color: #f8f9fa;
-    color: #0d1b3e;
-    background-image:
-      radial-gradient(at 0% 0%, rgba(182, 157, 100, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(10, 30, 74, 0.05) 0px, transparent 50%);
-    background-attachment: fixed;
+    background-color: #0a1e4a;
+    color: #ffffff;
   }
 
   /* Custom Slider styling for Gold theme */

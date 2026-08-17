@@ -31,7 +31,7 @@ export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart }) => 
           pode ser o próximo passo para chegar onde deseja.
         </p>
 
-        <p className="text-[#5A6E85] text-xs sm:text-sm font-medium">
+        <p className="text-white/60 text-xs sm:text-sm font-medium">
           A equipe <span className="text-[#0A1E4A] font-bold">Edvanced</span> poderá entrar em
           contato caso identifique uma solução compatível com o seu momento.
         </p>

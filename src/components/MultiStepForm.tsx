@@ -71,6 +71,11 @@ export const MultiStepForm: React.FC = () => {
           setErrorMessage('Por favor, informe seu WhatsApp com DDD.')
           return false
         }
+        const whatsappDigits = formData.whatsapp.replace(/\D/g, '')
+        if (whatsappDigits.length !== 10 && whatsappDigits.length !== 11) {
+          setErrorMessage('Por favor, insira um WhatsApp válido com DDD (10 ou 11 dígitos).')
+          return false
+        }
         if (!formData.email.trim()) {
           setErrorMessage('Por favor, informe seu e-mail.')
           return false

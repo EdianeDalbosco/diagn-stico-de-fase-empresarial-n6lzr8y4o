@@ -87,7 +87,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       </div>
 
       {/* Assinatura / Rodapé da landing */}
-      <div className="mt-12 pt-6 border-t border-[#E2E8F0] w-full max-w-xs text-center">
+      <div className="mt-12 pt-6 border-t border-white/15 w-full max-w-xs text-center">
         <p className="text-xs text-[#8C753E] font-bold tracking-widest uppercase">
           EDVANCED &middot; SOLUÇÕES EMPRESARIAIS
         </p>
