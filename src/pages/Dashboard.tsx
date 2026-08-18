@@ -23,6 +23,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  AreaChart,
+  Area,
 } from 'recharts'
 import {
   Bird,
@@ -33,6 +35,7 @@ import {
   ClipboardList,
   CheckCircle2,
   TrendingUp,
+  Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { exportarDiagnosticosCsv } from '@/lib/csvExport'
@@ -149,6 +152,7 @@ const Dashboard: React.FC = () => {
   // Filtros
   const [filtroTemperatura, setFiltroTemperatura] = useState<string>('todas')
   const [filtroSolucao, setFiltroSolucao] = useState<string>('todas')
+  const [buscaNome, setBuscaNome] = useState('')
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -201,18 +205,44 @@ const Dashboard: React.FC = () => {
     setDiagnosticos([])
     setFiltroTemperatura('todas')
     setFiltroSolucao('todas')
+    setBuscaNome('')
   }
 
   const handleExportCsv = () => {
     exportarDiagnosticosCsv(diagnosticosFiltrados)
   }
 
-  // Aplica filtros localmente
+  // Aplica filtros localmente (temperatura + solução + busca por nome — AND lógico)
+  const termoBusca = buscaNome.trim().toLowerCase()
   const diagnosticosFiltrados = diagnosticos.filter((d) => {
     if (filtroTemperatura !== 'todas' && d.temperatura_lead !== filtroTemperatura) return false
     if (filtroSolucao !== 'todas' && d.solucao_recomendada !== filtroSolucao) return false
+    if (termoBusca && !(d.nome || '').toLowerCase().includes(termoBusca)) return false
     return true
   })
+
+  // Evolução diária do número de diagnósticos (respeita os filtros ativos)
+  const dadosEvolucaoDiaria = useMemo(() => {
+    const counts: Record<string, number> = {}
+    diagnosticosFiltrados.forEach((d) => {
+      if (!d.created) return
+      const dt = new Date(d.created)
+      if (Number.isNaN(dt.getTime())) return
+      const chave = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(
+        2,
+        '0',
+      )}`
+      counts[chave] = (counts[chave] || 0) + 1
+    })
+    return Object.entries(counts)
+      .map(([data, quantidade]) => ({ data, quantidade }))
+      .sort((a, b) => {
+        const [da, ma] = a.data.split('/').map(Number)
+        const [db, mb] = b.data.split('/').map(Number)
+        if (ma !== mb) return ma - mb
+        return da - db
+      })
+  }, [diagnosticosFiltrados])
 
   // Dados agregados para os gráficos (respondem aos filtros ativos)
   const dadosTemperatura = useMemo(() => {
@@ -439,9 +469,79 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Filtros */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {' '}
+        {/* Gráfico de evolução de leads por dia — Executive Luxury (ouro) */}
+        {!carregando && !erroLista && temDadosParaGraficos && dadosEvolucaoDiaria.length > 0 && (
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm mb-6">
+            <h3 className="text-xs font-bold text-[#5A6E85] uppercase tracking-wider mb-4">
+              Evolução de diagnósticos por dia
+            </h3>
+            <div className="w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={dadosEvolucaoDiaria}
+                  margin={{ top: 8, right: 16, bottom: 0, left: -12 }}
+                >
+                  <defs>
+                    <linearGradient id="gradLeads" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#B69D64" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="#B69D64" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                  <XAxis
+                    dataKey="data"
+                    tick={{ fill: '#5A6E85', fontSize: 11 }}
+                    axisLine={{ stroke: '#E2E8F0' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: '#5A6E85', fontSize: 11 }}
+                    axisLine={{ stroke: '#E2E8F0' }}
+                    tickLine={false}
+                    allowDecimals={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#0A1E4A',
+                      border: '1px solid #B69D64',
+                      borderRadius: 8,
+                      color: '#fff',
+                      fontSize: 12,
+                    }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#D4B97A' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="quantidade"
+                    stroke="#B69D64"
+                    strokeWidth={2.5}
+                    fill="url(#gradLeads)"
+                    dot={{ fill: '#B69D64', r: 3 }}
+                    activeDot={{ r: 5 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Filtros + busca por nome */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold text-white/70 uppercase tracking-wider">
+              Buscar por nome
+            </Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+              <Input
+                value={buscaNome}
+                onChange={(e) => setBuscaNome(e.target.value)}
+                placeholder="Buscar por nome..."
+                className="pl-9 bg-white/5 border-white/15 text-white rounded-xl h-11 focus:border-[#B69D64] focus:ring-[#B69D64] placeholder:text-white/40"
+              />
+            </div>
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-white/70 uppercase tracking-wider">
               Temperatura do lead

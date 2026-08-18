@@ -11,7 +11,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-8 sm:py-12 flex flex-col items-center text-center animate-fade-in">
       {/* Badge topo */}
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69D64]/10 border border-[#B69D64]/30 text-[#8C753E] text-xs sm:text-sm font-semibold mb-6 shadow-sm backdrop-blur-sm">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69D64]/15 border border-[#B69D64]/40 text-[#D4B97A] text-xs sm:text-sm font-semibold mb-6 shadow-sm backdrop-blur-sm">
         <Sparkles className="w-4 h-4 text-[#B69D64]" />
         <span>Diagnóstico Estratégico &middot; Gratuito e Confidencial</span>
       </div>
