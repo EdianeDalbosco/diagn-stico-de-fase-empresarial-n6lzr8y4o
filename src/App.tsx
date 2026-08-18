@@ -5,6 +5,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import Index from './pages/Index'
 import Dashboard from './pages/Dashboard'
+import DiagnosticoResultado from './pages/DiagnosticoResultado'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
@@ -20,10 +21,11 @@ const App = () => (
         <Route element={<Layout />}>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/diagnostico/:id" element={<DiagnosticoResultado />} />
           {/* ADD ALL CUSTOM ROUTES MUST BE ADDED HERE */}
         </Route>
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      </Routes>{' '}
     </TooltipProvider>
   </BrowserRouter>
 )

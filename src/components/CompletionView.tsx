@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   CheckCircle2,
   Sparkles,
@@ -8,11 +9,15 @@ import {
   Loader2,
   Check,
   AlertCircle,
+  Link2,
+  Copy,
+  ExternalLink,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface CompletionViewProps {
   solucaoRecomendada?: string
+  diagnosticoId?: string | null
   onRestart?: () => void
   onDownloadPdf?: () => void
   onSendEmail?: () => Promise<{ ok: boolean; error?: string }>
@@ -95,6 +100,7 @@ const MENSAGEM_PADRAO: MensagemSolucao = {
 
 export const CompletionView: React.FC<CompletionViewProps> = ({
   solucaoRecomendada,
+  diagnosticoId,
   onRestart,
   onDownloadPdf,
   onSendEmail,
@@ -103,6 +109,35 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
     (solucaoRecomendada && MENSAGENS_POR_SOLUCAO[solucaoRecomendada]) || MENSAGEM_PADRAO
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle')
   const [emailError, setEmailError] = useState<string | null>(null)
+  const [linkCopiado, setLinkCopiado] = useState(false)
+
+  // Link único e revisitável do diagnóstico (/diagnostico/:id)
+  const linkDiagnostico = useMemo(() => {
+    if (!diagnosticoId) return null
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    return `${origin}/diagnostico/${diagnosticoId}`
+  }, [diagnosticoId])
+
+  const handleCopiarLink = async () => {
+    if (!linkDiagnostico) return
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(linkDiagnostico)
+      } else {
+        // Fallback para contextos não seguros
+        const input = document.createElement('input')
+        input.value = linkDiagnostico
+        document.body.appendChild(input)
+        input.select()
+        document.execCommand('copy')
+        document.body.removeChild(input)
+      }
+      setLinkCopiado(true)
+      setTimeout(() => setLinkCopiado(false), 2500)
+    } catch (err) {
+      console.error('Erro ao copiar link:', err)
+    }
+  }
 
   const handleSendEmail = async () => {
     if (!onSendEmail || emailStatus === 'sending' || emailStatus === 'sent') return
@@ -165,6 +200,57 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
           resultados.&rdquo;
         </p>
       </div>
+
+      {/* Link único do diagnóstico para revisitar depois */}
+      {linkDiagnostico && (
+        <div className="w-full max-w-lg mb-8">
+          <div className="bg-white/5 border border-[#B69D64]/40 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-3 text-[#D4B97A]">
+              <Link2 className="w-4 h-4" />
+              <span className="text-xs uppercase tracking-widest font-bold">
+                Seu link de resultados
+              </span>
+            </div>
+            <p className="text-xs text-white/70 font-medium mb-3 leading-relaxed">
+              Salve este link para revisitar seu diagnóstico quando quiser. Você também pode
+              compartilhá-lo.
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch gap-2">
+              <div className="flex-1 min-w-0 px-3 py-2.5 rounded-xl bg-[#0A1E4A]/60 border border-white/15 text-white/90 text-xs font-mono truncate select-all">
+                {linkDiagnostico}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleCopiarLink}
+                  className="bg-gradient-to-r from-[#B69D64] to-[#A8884F] hover:from-[#C2A872] hover:to-[#B69D64] text-white font-bold rounded-xl px-4 py-2.5 shadow-md shadow-black/20 border border-[#D4B97A]/40 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+                >
+                  {linkCopiado ? (
+                    <>
+                      <Check className="w-4 h-4 mr-1.5 text-emerald-200" />
+                      Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-1.5" />
+                      Copiar link
+                    </>
+                  )}
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="border-[#B69D64]/50 text-white hover:bg-white/10 hover:text-white font-bold rounded-xl px-4 py-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <Link to={`/diagnostico/${diagnosticoId}`} target="_blank" rel="noopener">
+                    <ExternalLink className="w-4 h-4 mr-1.5 text-[#B69D64]" />
+                    Abrir
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Ações: baixar PDF + enviar por e-mail */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full max-w-lg mb-2">

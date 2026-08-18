@@ -34,6 +34,7 @@ export const MultiStepForm: React.FC = () => {
   const [formData, setFormData] = useState<FormStepData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
+  const [savedRecordId, setSavedRecordId] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const { toast } = useToast()
@@ -53,6 +54,7 @@ export const MultiStepForm: React.FC = () => {
   const handleRestart = () => {
     setFormData(initialFormData)
     setIsCompleted(false)
+    setSavedRecordId(null)
     setHasStarted(false)
     setCurrentStep(1)
     setErrorMessage(null)
@@ -279,7 +281,8 @@ export const MultiStepForm: React.FC = () => {
     setErrorMessage(null)
 
     try {
-      await submitDiagnostico(formData)
+      const record = await submitDiagnostico(formData)
+      setSavedRecordId(record?.id ?? null)
       setIsCompleted(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err: unknown) {

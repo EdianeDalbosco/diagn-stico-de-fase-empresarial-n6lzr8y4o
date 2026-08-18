@@ -70,6 +70,18 @@ export async function listDiagnosticos(limit = 50) {
 }
 
 /**
+ * Busca um diagnóstico pelo ID no PocketBase.
+ * Usado pela rota pública /diagnostico/:id para reexibir os resultados
+ * do lead a partir de um link direto.
+ *
+ * Lança um erro (404) caso o registro não exista — o chamador trata o estado
+ * "não encontrado".
+ */
+export async function getDiagnosticoById(id: string): Promise<DiagnosticoRecord> {
+  return pb.collection('diagnosticos').getOne<DiagnosticoRecord>(id)
+}
+
+/**
  * Envia o PDF do diagnóstico por e-mail para o lead, via endpoint público
  * /api/enviar-pdf-diagnostico (pb_hook). Constrói o mesmo PDF do download e
  * envia como multipart/form-data.
