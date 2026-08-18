@@ -27,7 +27,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       </p>
 
       {/* Texto de apoio */}
-      <p className="text-sm sm:text-base text-white/70 mb-8 max-w-lg leading-relaxed">
+      <p className="text-sm sm:text-base text-[#0A1E4A] mb-8 max-w-lg leading-relaxed">
         Descubra qual é o próximo passo para o seu negócio, sua carreira ou sua liderança. Em poucos
         minutos, identifique quais pontos hoje mais limitam o seu crescimento e receba a orientação
         estratégica ideal.
