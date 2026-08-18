@@ -12,8 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Bird, Lock, ArrowLeft, Loader2 } from 'lucide-react'
+import { Bird, Lock, ArrowLeft, Loader2, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { exportarDiagnosticosCsv } from '@/lib/csvExport'
 
 // Lista fixa de soluções recomendadas possíveis (espelha src/types/diagnostico.ts)
 const SOLUCOES: SolucaoRecomendada[] = [
@@ -151,6 +152,10 @@ const Dashboard: React.FC = () => {
     setFiltroSolucao('todas')
   }
 
+  const handleExportCsv = () => {
+    exportarDiagnosticosCsv(diagnosticosFiltrados)
+  }
+
   // Aplica filtros localmente
   const diagnosticosFiltrados = diagnosticos.filter((d) => {
     if (filtroTemperatura !== 'todas' && d.temperatura_lead !== filtroTemperatura) return false
@@ -244,7 +249,15 @@ const Dashboard: React.FC = () => {
               {diagnosticosFiltrados.length} de {diagnosticos.length} diagnóstico(s) exibido(s)
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              onClick={handleExportCsv}
+              disabled={diagnosticosFiltrados.length === 0}
+              className="bg-gradient-to-r from-[#B69D64] to-[#A8884F] hover:from-[#C2A872] hover:to-[#B69D64] text-white font-bold rounded-xl shadow-md shadow-black/20 border border-[#D4B97A]/40 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4 mr-1.5" />
+              Exportar CSV
+            </Button>
             <Button
               variant="outline"
               onClick={() => navigate('/')}

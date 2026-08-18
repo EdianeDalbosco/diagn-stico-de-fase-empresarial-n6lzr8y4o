@@ -1,12 +1,13 @@
 import React from 'react'
-import { CheckCircle2, Sparkles, Bird } from 'lucide-react'
+import { CheckCircle2, Sparkles, Bird, FileDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface CompletionViewProps {
   onRestart?: () => void
+  onDownloadPdf?: () => void
 }
 
-export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart }) => {
+export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart, onDownloadPdf }) => {
   return (
     <div className="w-full max-w-xl mx-auto px-4 py-8 sm:py-12 flex flex-col items-center text-center animate-fade-in">
       {/* Ícone de Sucesso Dourado / Marinho */}
@@ -50,6 +51,17 @@ export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart }) => 
           resultados.&rdquo;
         </p>
       </div>
+
+      {/* Download do diagnóstico em PDF */}
+      {onDownloadPdf && (
+        <Button
+          onClick={onDownloadPdf}
+          className="mb-4 bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold rounded-xl px-6 py-3 shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
+        >
+          <FileDown className="w-4 h-4 mr-2 text-[#B69D64]" />
+          Baixar meu diagnóstico em PDF
+        </Button>
+      )}
 
       {/* Ação secundária para caso queira responder novamente */}
       {onRestart && (
