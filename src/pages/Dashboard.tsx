@@ -36,6 +36,8 @@ import {
   CheckCircle2,
   TrendingUp,
   Search,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { exportarDiagnosticosCsv } from '@/lib/csvExport'
@@ -154,6 +156,29 @@ const Dashboard: React.FC = () => {
   const [filtroSolucao, setFiltroSolucao] = useState<string>('todas')
   const [buscaNome, setBuscaNome] = useState('')
 
+  // Ordenação da tabela
+  // sortKey = null => estado original (ordem de chegada, -created)
+  // dir = 'asc' | 'desc'
+  type SortKey = 'data' | 'nome' | 'temperatura'
+  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+
+  const ORDENACAO_TEMPERATURA: Record<string, number> = { Quente: 0, Morno: 1, Frio: 2 }
+  const alternarOrdenacao = (coluna: SortKey) => {
+    if (sortKey !== coluna) {
+      setSortKey(coluna)
+      setSortDir('asc')
+      return
+    }
+    // mesma coluna: asc -> desc -> original
+    if (sortDir === 'asc') {
+      setSortDir('desc')
+    } else {
+      setSortKey(null)
+      setSortDir('asc')
+    }
+  }
+
   const carregar = useCallback(async () => {
     setCarregando(true)
     setErroLista(null)
@@ -220,6 +245,30 @@ const Dashboard: React.FC = () => {
     if (termoBusca && !(d.nome || '').toLowerCase().includes(termoBusca)) return false
     return true
   })
+
+  // Aplica ordenação da tabela (mantém a ordem original quando sortKey === null)
+  const diagnosticosOrdenados = useMemo(() => {
+    if (!sortKey) return diagnosticosFiltrados
+    const arr = [...diagnosticosFiltrados]
+    const dirMult = sortDir === 'asc' ? 1 : -1
+    arr.sort((a, b) => {
+      if (sortKey === 'data') {
+        const ta = a.created ? new Date(a.created).getTime() : 0
+        const tb = b.created ? new Date(b.created).getTime() : 0
+        return (ta - tb) * dirMult
+      }
+      if (sortKey === 'nome') {
+        const na = (a.nome || '').toLowerCase()
+        const nb = (b.nome || '').toLowerCase()
+        return na.localeCompare(nb, 'pt-BR') * dirMult
+      }
+      // temperatura
+      const va = a.temperatura_lead ? (ORDENACAO_TEMPERATURA[a.temperatura_lead] ?? 99) : 99
+      const vb = b.temperatura_lead ? (ORDENACAO_TEMPERATURA[b.temperatura_lead] ?? 99) : 99
+      return (va - vb) * dirMult
+    })
+    return arr
+  }, [diagnosticosFiltrados, sortKey, sortDir])
 
   // Evolução diária do número de diagnósticos (respeita os filtros ativos)
   const dadosEvolucaoDiaria = useMemo(() => {
@@ -772,7 +821,19 @@ const Dashboard: React.FC = () => {
                 <thead>
                   <tr className="bg-[#0A1E4A] border-b border-white/15 text-left">
                     <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
-                      Nome
+                      <button
+                        type="button"
+                        onClick={() => alternarOrdenacao('nome')}
+                        className="inline-flex items-center gap-1 cursor-pointer hover:text-[#D4B97A] transition-colors"
+                      >
+                        Nome
+                        {sortKey === 'nome' &&
+                          (sortDir === 'asc' ? (
+                            <ArrowUp className="w-3 h-3 text-[#B69D64]" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-[#B69D64]" />
+                          ))}
+                      </button>
                     </th>
                     <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
                       WhatsApp
@@ -784,18 +845,42 @@ const Dashboard: React.FC = () => {
                       Fase atual
                     </th>
                     <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
-                      Temperatura
+                      <button
+                        type="button"
+                        onClick={() => alternarOrdenacao('temperatura')}
+                        className="inline-flex items-center gap-1 cursor-pointer hover:text-[#D4B97A] transition-colors"
+                      >
+                        Temperatura
+                        {sortKey === 'temperatura' &&
+                          (sortDir === 'asc' ? (
+                            <ArrowUp className="w-3 h-3 text-[#B69D64]" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-[#B69D64]" />
+                          ))}
+                      </button>
                     </th>
                     <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
                       Solução recomendada
                     </th>
                     <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
-                      Data de envio
+                      <button
+                        type="button"
+                        onClick={() => alternarOrdenacao('data')}
+                        className="inline-flex items-center gap-1 cursor-pointer hover:text-[#D4B97A] transition-colors"
+                      >
+                        Data de envio
+                        {sortKey === 'data' &&
+                          (sortDir === 'asc' ? (
+                            <ArrowUp className="w-3 h-3 text-[#B69D64]" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-[#B69D64]" />
+                          ))}
+                      </button>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {diagnosticosFiltrados.map((d) => (
+                  {diagnosticosOrdenados.map((d) => (
                     <tr
                       key={d.id}
                       className="border-b border-white/5 hover:bg-white/5 transition-colors"

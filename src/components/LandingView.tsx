@@ -9,7 +9,7 @@ interface LandingViewProps {
 
 export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-8 sm:py-12 flex flex-col items-center text-center animate-fade-in">
+    <div className="w-full max-w-2xl mx-auto px-4 py-8 sm:py-12 flex flex-col items-center text-center animate-fade-in text-[#040024]">
       {/* Badge topo */}
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69D64]/15 border border-[#B69D64]/40 text-[#D4B97A] text-xs sm:text-sm font-semibold mb-6 shadow-sm backdrop-blur-sm">
         <Sparkles className="w-4 h-4 text-[#B69D64]" />
@@ -17,7 +17,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       </div>
 
       {/* Título Principal */}
-      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 leading-tight sm:leading-tight">
+      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3 leading-tight sm:leading-tight text-[#010227]">
         Diagnóstico de Fase Empresarial
       </h1>
 
@@ -27,7 +27,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       </p>
 
       {/* Texto de apoio */}
-      <p className="text-sm sm:text-base text-white/70 mb-8 max-w-lg leading-relaxed">
+      <p className="text-sm sm:text-base text-white/70 mb-8 max-w-lg leading-relaxed text-[#140542]">
         Descubra qual é o próximo passo para o seu negócio, sua carreira ou sua liderança. Em poucos
         minutos, identifique quais pontos hoje mais limitam o seu crescimento e receba a orientação
         estratégica ideal.
