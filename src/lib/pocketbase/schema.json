@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-18T04:57:15.731Z",
+  "generatedAt": "2026-08-18T10:14:16.477Z",
   "collections": [
     {
       "name": "users",
@@ -242,12 +242,19 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "token_acesso",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
         "CREATE INDEX idx_diag_email ON diagnosticos (email)",
         "CREATE INDEX idx_diag_created ON diagnosticos (created DESC)",
-        "CREATE INDEX idx_diag_temperatura ON diagnosticos (temperatura_lead)"
+        "CREATE INDEX idx_diag_temperatura ON diagnosticos (temperatura_lead)",
+        "CREATE INDEX `idx_diag_token` ON `diagnosticos` (token_acesso)"
       ]
     }
   ]

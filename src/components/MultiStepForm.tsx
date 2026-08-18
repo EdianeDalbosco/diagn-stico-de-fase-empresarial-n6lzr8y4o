@@ -35,6 +35,7 @@ export const MultiStepForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [savedRecordId, setSavedRecordId] = useState<string | null>(null)
+  const [savedTokenAcesso, setSavedTokenAcesso] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const { toast } = useToast()
@@ -55,6 +56,7 @@ export const MultiStepForm: React.FC = () => {
     setFormData(initialFormData)
     setIsCompleted(false)
     setSavedRecordId(null)
+    setSavedTokenAcesso(null)
     setHasStarted(false)
     setCurrentStep(1)
     setErrorMessage(null)
@@ -283,6 +285,7 @@ export const MultiStepForm: React.FC = () => {
     try {
       const record = await submitDiagnostico(formData)
       setSavedRecordId(record?.id ?? null)
+      setSavedTokenAcesso(record?.token_acesso ?? null)
       setIsCompleted(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err: unknown) {
@@ -426,6 +429,8 @@ export const MultiStepForm: React.FC = () => {
         ) : isCompleted ? (
           <CompletionView
             solucaoRecomendada={solucaoRecomendada}
+            diagnosticoId={savedRecordId}
+            tokenAcesso={savedTokenAcesso}
             onRestart={handleRestart}
             onDownloadPdf={handleDownloadPdf}
             onSendEmail={handleSendEmail}

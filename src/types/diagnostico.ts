@@ -86,6 +86,8 @@ export interface DiagnosticoRecord extends FormStepData {
   id?: string
   solucao_recomendada: SolucaoRecomendada | string
   temperatura_lead: TemperaturaLead
+  /** Token único que protege o acesso à página pública /diagnostico/:id */
+  token_acesso?: string
   created?: string
   updated?: string
 }

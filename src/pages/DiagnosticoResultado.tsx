@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useSearchParams, Link } from 'react-router-dom'
 import {
   Bird,
   FileDown,
@@ -61,23 +61,42 @@ const corBarraNota = (nota: number): string => {
 
 const DiagnosticoResultado: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
+  const tokenUrl = searchParams.get('token')
   const [registro, setRegistro] = useState<DiagnosticoRecord | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [naoEncontrado, setNaoEncontrado] = useState(false)
+  const [naoAutorizado, setNaoAutorizado] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     let ativo = true
     setCarregando(true)
     setNaoEncontrado(false)
+    setNaoAutorizado(false)
     if (!id) {
       setNaoEncontrado(true)
+      setCarregando(false)
+      return
+    }
+    // Validação do token de acesso: a página pública /diagnostico/:id só
+    // pode ser aberta com o token único gerado no momento da criação do
+    // registro. Token ausente ou incorreto => acesso não autorizado.
+    if (!tokenUrl) {
+      if (!ativo) return
+      setNaoAutorizado(true)
       setCarregando(false)
       return
     }
     getDiagnosticoById(id)
       .then((rec) => {
         if (!ativo) return
+        const tokenRegistro = rec.token_acesso || ''
+        if (!tokenRegistro || tokenRegistro !== tokenUrl) {
+          setNaoAutorizado(true)
+          setCarregando(false)
+          return
+        }
         setRegistro(rec)
         setCarregando(false)
       })
@@ -90,7 +109,7 @@ const DiagnosticoResultado: React.FC = () => {
     return () => {
       ativo = false
     }
-  }, [id])
+  }, [id, tokenUrl])
 
   const handleDownloadPdf = () => {
     if (!registro) return
@@ -120,6 +139,33 @@ const DiagnosticoResultado: React.FC = () => {
       <div className="min-h-screen bg-[#0A1E4A] text-white flex flex-col items-center justify-center px-4 py-10">
         <Loader2 className="w-8 h-8 animate-spin text-[#B69D64] mb-3" />
         <p className="text-sm font-medium text-white/70">Carregando seu diagnóstico...</p>
+      </div>
+    )
+  }
+
+  // -------- Estado: acesso não autorizado (token ausente/incorreto) --------
+  if (naoAutorizado) {
+    return (
+      <div className="min-h-screen bg-[#0A1E4A] text-white flex flex-col items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md text-center">
+          <div className="w-16 h-16 rounded-full bg-[#B69D64]/15 border-2 border-[#B69D64] flex items-center justify-center text-[#B69D64] mx-auto mb-6">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl font-extrabold text-white mb-3">Acesso não autorizado</h1>
+          <p className="text-sm text-white/70 mb-8 leading-relaxed">
+            Este link de diagnóstico é protegido. Para visualizar o resultado, utilize o link
+            completo enviado ao final do diagnóstico, incluindo o token de acesso.
+          </p>
+          <Button
+            asChild
+            className="bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold rounded-xl px-6 py-3 shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] transition-all cursor-pointer"
+          >
+            <Link to="/">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar à página inicial
+            </Link>
+          </Button>
+        </div>
       </div>
     )
   }

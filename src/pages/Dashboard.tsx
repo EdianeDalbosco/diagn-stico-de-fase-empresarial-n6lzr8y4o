@@ -24,7 +24,16 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts'
-import { Bird, Lock, ArrowLeft, Loader2, Download } from 'lucide-react'
+import {
+  Bird,
+  Lock,
+  ArrowLeft,
+  Loader2,
+  Download,
+  ClipboardList,
+  CheckCircle2,
+  TrendingUp,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { exportarDiagnosticosCsv } from '@/lib/csvExport'
 
@@ -242,6 +251,27 @@ const Dashboard: React.FC = () => {
 
   const temDadosParaGraficos = diagnosticosFiltrados.length > 0
 
+  // -------- KPIs do dashboard --------
+  // Total geral (KPI fixo), taxa de conclusão e leads nos últimos 30 dias.
+  // O diagnóstico só é salvo quando concluído, então todo registro salvo é
+  // considerado concluído (taxa de conclusão = 100% dos que iniciaram e salvaram).
+  const totalDiagnosticos = diagnosticos.length
+
+  const taxaConclusao = useMemo(() => {
+    // Todo registro salvo representa um diagnóstico concluído.
+    if (totalDiagnosticos === 0) return 0
+    return 100
+  }, [totalDiagnosticos])
+
+  const leadsUltimos30Dias = useMemo(() => {
+    const limite = Date.now() - 30 * 24 * 60 * 60 * 1000
+    return diagnosticos.filter((d) => {
+      if (!d.created) return false
+      const t = new Date(d.created).getTime()
+      return !Number.isNaN(t) && t >= limite
+    }).length
+  }, [diagnosticos])
+
   // -------- TELA DE LOGIN --------
   if (!autenticado) {
     return (
@@ -355,8 +385,63 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Cards de métricas (KPIs) — Executive Luxury */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-[11px] font-bold text-[#5A6E85] uppercase tracking-wider">
+                  Total de diagnósticos
+                </p>
+                <p className="text-3xl font-extrabold text-[#0A1E4A] mt-1.5 leading-none">
+                  {totalDiagnosticos}
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-[#B69D64]/10 text-[#B69D64]">
+                <ClipboardList className="w-5 h-5" />
+              </div>
+            </div>
+            <p className="text-[11px] text-[#5A6E85] font-medium">Todos os registros salvos</p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-[11px] font-bold text-[#5A6E85] uppercase tracking-wider">
+                  Taxa de conclusão
+                </p>
+                <p className="text-3xl font-extrabold text-[#0A1E4A] mt-1.5 leading-none">
+                  {taxaConclusao}%
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-[#B69D64]/10 text-[#B69D64]">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+            </div>
+            <p className="text-[11px] text-[#5A6E85] font-medium">Diagnósticos finalizados</p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-[11px] font-bold text-[#5A6E85] uppercase tracking-wider">
+                  Leads (últimos 30 dias)
+                </p>
+                <p className="text-3xl font-extrabold text-[#0A1E4A] mt-1.5 leading-none">
+                  {leadsUltimos30Dias}
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-[#B69D64]/10 text-[#B69D64]">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+            </div>
+            <p className="text-[11px] text-[#5A6E85] font-medium">Novos diagnósticos no período</p>
+          </div>
+        </div>
+
         {/* Filtros */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          {' '}
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-white/70 uppercase tracking-wider">
               Temperatura do lead
@@ -375,7 +460,6 @@ const Dashboard: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-white/70 uppercase tracking-wider">
               Solução recomendada

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 interface CompletionViewProps {
   solucaoRecomendada?: string
   diagnosticoId?: string | null
+  tokenAcesso?: string | null
   onRestart?: () => void
   onDownloadPdf?: () => void
   onSendEmail?: () => Promise<{ ok: boolean; error?: string }>
@@ -101,6 +102,7 @@ const MENSAGEM_PADRAO: MensagemSolucao = {
 export const CompletionView: React.FC<CompletionViewProps> = ({
   solucaoRecomendada,
   diagnosticoId,
+  tokenAcesso,
   onRestart,
   onDownloadPdf,
   onSendEmail,
@@ -111,12 +113,14 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
   const [emailError, setEmailError] = useState<string | null>(null)
   const [linkCopiado, setLinkCopiado] = useState(false)
 
-  // Link único e revisitável do diagnóstico (/diagnostico/:id)
+  // Link único e revisitável do diagnóstico (/diagnostico/:id?token=TOKEN)
+  // O token protege o acesso à página pública de resultados.
   const linkDiagnostico = useMemo(() => {
     if (!diagnosticoId) return null
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    return `${origin}/diagnostico/${diagnosticoId}`
-  }, [diagnosticoId])
+    const base = `${origin}/diagnostico/${diagnosticoId}`
+    return tokenAcesso ? `${base}?token=${tokenAcesso}` : base
+  }, [diagnosticoId, tokenAcesso])
 
   const handleCopiarLink = async () => {
     if (!linkDiagnostico) return
@@ -241,7 +245,11 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
                   variant="outline"
                   className="border-[#B69D64]/50 text-white hover:bg-white/10 hover:text-white font-bold rounded-xl px-4 py-2.5 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
                 >
-                  <Link to={`/diagnostico/${diagnosticoId}`} target="_blank" rel="noopener">
+                  <Link
+                    to={`/diagnostico/${diagnosticoId}${tokenAcesso ? `?token=${tokenAcesso}` : ''}`}
+                    target="_blank"
+                    rel="noopener"
+                  >
                     <ExternalLink className="w-4 h-4 mr-1.5 text-[#B69D64]" />
                     Abrir
                   </Link>
