@@ -1,5 +1,6 @@
 import React from 'react'
-import { Bird, Sparkles, Building2, TrendingUp, ShieldCheck, Compass } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Bird, Sparkles, Building2, TrendingUp, ShieldCheck, Compass, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface LandingViewProps {
@@ -92,6 +93,17 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           EDVANCED &middot; SOLUÇÕES EMPRESARIAIS
         </p>
       </div>
+
+      {/* Acesso discreto à área administrativa (visível só para quem procura) */}
+      <Link
+        to="/dashboard"
+        aria-label="Área administrativa"
+        title="Área administrativa"
+        className="mt-5 inline-flex items-center gap-1.5 text-[10px] text-white/25 hover:text-white/55 transition-colors font-medium tracking-wide"
+      >
+        <Lock className="w-3 h-3" aria-hidden="true" />
+        <span>Área administrativa</span>
+      </Link>
     </div>
   )
 }

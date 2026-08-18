@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { DiagnosticoRecord, TemperaturaLead, SolucaoRecomendada } from '@/types/diagnostico'
@@ -12,6 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts'
 import { Bird, Lock, ArrowLeft, Loader2, Download } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { exportarDiagnosticosCsv } from '@/lib/csvExport'
@@ -29,6 +41,36 @@ const SOLUCOES: SolucaoRecomendada[] = [
 ]
 
 const TEMPERATURAS: TemperaturaLead[] = ['Quente', 'Morno', 'Frio']
+
+// Paleta Executive Luxury — navy, dourado, off-white e acentos por temperatura
+const CHART_COLORS = {
+  navy: '#0A1E4A',
+  navyMid: '#1A3A8A',
+  gold: '#B69D64',
+  goldLight: '#D4B97A',
+  offWhite: '#F8F9FA',
+  quente: '#F43F5E',
+  morno: '#F59E0B',
+  frio: '#38BDF8',
+}
+
+const TEMPERATURA_COR: Record<string, string> = {
+  Quente: CHART_COLORS.quente,
+  Morno: CHART_COLORS.morno,
+  Frio: CHART_COLORS.frio,
+}
+
+// Paleta cíclica para barras de "solução recomendada" e "fase atual"
+const BAR_PALETTE = [
+  CHART_COLORS.gold,
+  CHART_COLORS.navyMid,
+  CHART_COLORS.goldLight,
+  '#6B8FD8',
+  '#A8884F',
+  '#3E5C9E',
+  '#E0C790',
+  '#7B9AE0',
+]
 
 // Estilo visual por temperatura do lead
 const temperaturaStyles: Record<string, string> = {
@@ -162,6 +204,43 @@ const Dashboard: React.FC = () => {
     if (filtroSolucao !== 'todas' && d.solucao_recomendada !== filtroSolucao) return false
     return true
   })
+
+  // Dados agregados para os gráficos (respondem aos filtros ativos)
+  const dadosTemperatura = useMemo(() => {
+    const counts: Record<string, number> = { Quente: 0, Morno: 0, Frio: 0 }
+    diagnosticosFiltrados.forEach((d) => {
+      const t = d.temperatura_lead
+      if (t && counts[t] !== undefined) counts[t] += 1
+    })
+    return (Object.keys(counts) as TemperaturaLead[]).map((t) => ({
+      name: t,
+      value: counts[t],
+    }))
+  }, [diagnosticosFiltrados])
+
+  const dadosSolucao = useMemo(() => {
+    const counts: Record<string, number> = {}
+    diagnosticosFiltrados.forEach((d) => {
+      const s = d.solucao_recomendada || 'Não definida'
+      counts[s] = (counts[s] || 0) + 1
+    })
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+  }, [diagnosticosFiltrados])
+
+  const dadosFase = useMemo(() => {
+    const counts: Record<string, number> = {}
+    diagnosticosFiltrados.forEach((d) => {
+      const f = d.momento_atual || 'Não informada'
+      counts[f] = (counts[f] || 0) + 1
+    })
+    return Object.entries(counts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+  }, [diagnosticosFiltrados])
+
+  const temDadosParaGraficos = diagnosticosFiltrados.length > 0
 
   // -------- TELA DE LOGIN --------
   if (!autenticado) {
@@ -316,6 +395,166 @@ const Dashboard: React.FC = () => {
             </Select>
           </div>
         </div>
+
+        {/* Gráficos — distribuição por temperatura, solução e fase */}
+        {!carregando && !erroLista && temDadosParaGraficos && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            {/* Pizza: distribuição por temperatura */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-lg shadow-black/20">
+              <h3 className="text-xs font-bold text-white/70 uppercase tracking-wider mb-4">
+                Distribuição por temperatura
+              </h3>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={dadosTemperatura}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={48}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      stroke="#0A1E4A"
+                    >
+                      {dadosTemperatura.map((entry) => (
+                        <Cell
+                          key={entry.name}
+                          fill={TEMPERATURA_COR[entry.name] || CHART_COLORS.gold}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        background: '#0A1E4A',
+                        border: '1px solid #B69D64',
+                        borderRadius: 8,
+                        color: '#fff',
+                        fontSize: 12,
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                      labelStyle={{ color: '#D4B97A' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-3 flex-wrap">
+                {dadosTemperatura.map((t) => (
+                  <div key={t.name} className="flex items-center gap-1.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ background: TEMPERATURA_COR[t.name] || CHART_COLORS.gold }}
+                    />
+                    <span className="text-[11px] text-white/70 font-medium">
+                      {t.name} ({t.value})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Barras horizontais: distribuição por solução recomendada */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-lg shadow-black/20">
+              <h3 className="text-xs font-bold text-white/70 uppercase tracking-wider mb-4">
+                Por solução recomendada
+              </h3>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={dadosSolucao}
+                    layout="vertical"
+                    margin={{ top: 0, right: 12, bottom: 0, left: 8 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                    <XAxis
+                      type="number"
+                      tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
+                      axisLine={{ stroke: 'rgba(255,255,255,0.15)' }}
+                      tickLine={false}
+                      allowDecimals={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      width={120}
+                      tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 10 }}
+                      axisLine={{ stroke: 'rgba(255,255,255,0.15)' }}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                      contentStyle={{
+                        background: '#0A1E4A',
+                        border: '1px solid #B69D64',
+                        borderRadius: 8,
+                        color: '#fff',
+                        fontSize: 12,
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                      labelStyle={{ color: '#D4B97A' }}
+                    />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={14}>
+                      {dadosSolucao.map((_, i) => (
+                        <Cell key={i} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Barras horizontais: distribuição por fase/momento atual */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-lg shadow-black/20">
+              <h3 className="text-xs font-bold text-white/70 uppercase tracking-wider mb-4">
+                Por fase / momento atual
+              </h3>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={dadosFase}
+                    layout="vertical"
+                    margin={{ top: 0, right: 12, bottom: 0, left: 8 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                    <XAxis
+                      type="number"
+                      tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }}
+                      axisLine={{ stroke: 'rgba(255,255,255,0.15)' }}
+                      tickLine={false}
+                      allowDecimals={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      width={140}
+                      tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 9 }}
+                      axisLine={{ stroke: 'rgba(255,255,255,0.15)' }}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                      contentStyle={{
+                        background: '#0A1E4A',
+                        border: '1px solid #B69D64',
+                        borderRadius: 8,
+                        color: '#fff',
+                        fontSize: 12,
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                      labelStyle={{ color: '#D4B97A' }}
+                    />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
+                      {dadosFase.map((_, i) => (
+                        <Cell key={i} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Estados: carregando / erro / vazia / tabela */}
         {carregando ? (

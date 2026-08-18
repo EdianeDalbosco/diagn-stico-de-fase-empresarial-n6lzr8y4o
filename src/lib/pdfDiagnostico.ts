@@ -51,9 +51,11 @@ const corTemperatura = (t: TemperaturaLead): [number, number, number] => {
 }
 
 /**
- * Gera e baixa automaticamente um mini-relatório em PDF do diagnóstico.
+ * Constrói o documento PDF do diagnóstico a partir dos dados informados.
+ * Centraliza a montagem para que download e envio por e-mail usem o mesmo
+ * conteúdo visual.
  */
-export function gerarPdfDiagnostico(data: PdfDiagnosticoData): void {
+export function construirPdfDiagnostico(data: PdfDiagnosticoData): jsPDF {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const pageW = doc.internal.pageSize.getWidth() // 595.28
   const pageH = doc.internal.pageSize.getHeight() // 841.89
@@ -251,7 +253,14 @@ export function gerarPdfDiagnostico(data: PdfDiagnosticoData): void {
   const fW = doc.getTextWidth(footer)
   doc.text(footer, (pageW - fW) / 2, pageH - 10)
 
-  // ---------- Download ----------
+  return doc
+}
+
+/**
+ * Gera e baixa automaticamente um mini-relatório em PDF do diagnóstico.
+ */
+export function gerarPdfDiagnostico(data: PdfDiagnosticoData): void {
+  const doc = construirPdfDiagnostico(data)
   const nomeArquivo = `diagnostico-${(data.nome || 'lead')
     .toLowerCase()
     .normalize('NFD')
@@ -259,4 +268,13 @@ export function gerarPdfDiagnostico(data: PdfDiagnosticoData): void {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')}.pdf`
   doc.save(nomeArquivo)
+}
+
+/**
+ * Gera o PDF do diagnóstico e retorna um Blob (para envio por e-mail,
+ * upload, etc.) sem disparar o download no navegador.
+ */
+export function gerarPdfBlob(data: PdfDiagnosticoData): Blob {
+  const doc = construirPdfDiagnostico(data)
+  return doc.output('blob')
 }

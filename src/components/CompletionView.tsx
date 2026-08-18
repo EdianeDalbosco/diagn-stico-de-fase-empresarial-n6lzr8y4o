@@ -1,13 +1,50 @@
-import React from 'react'
-import { CheckCircle2, Sparkles, Bird, FileDown } from 'lucide-react'
+import React, { useState } from 'react'
+import {
+  CheckCircle2,
+  Sparkles,
+  Bird,
+  FileDown,
+  Mail,
+  Loader2,
+  Check,
+  AlertCircle,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface CompletionViewProps {
   onRestart?: () => void
   onDownloadPdf?: () => void
+  onSendEmail?: () => Promise<{ ok: boolean; error?: string }>
 }
 
-export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart, onDownloadPdf }) => {
+type EmailStatus = 'idle' | 'sending' | 'sent' | 'error'
+
+export const CompletionView: React.FC<CompletionViewProps> = ({
+  onRestart,
+  onDownloadPdf,
+  onSendEmail,
+}) => {
+  const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle')
+  const [emailError, setEmailError] = useState<string | null>(null)
+
+  const handleSendEmail = async () => {
+    if (!onSendEmail || emailStatus === 'sending' || emailStatus === 'sent') return
+    setEmailStatus('sending')
+    setEmailError(null)
+    try {
+      const res = await onSendEmail()
+      if (res.ok) {
+        setEmailStatus('sent')
+      } else {
+        setEmailStatus('error')
+        setEmailError(res.error || 'Não foi possível enviar o e-mail.')
+      }
+    } catch (err) {
+      setEmailStatus('error')
+      setEmailError(err instanceof Error ? err.message : 'Falha inesperada ao enviar o e-mail.')
+    }
+  }
+
   return (
     <div className="w-full max-w-xl mx-auto px-4 py-8 sm:py-12 flex flex-col items-center text-center animate-fade-in">
       {/* Ícone de Sucesso Dourado / Marinho */}
@@ -52,15 +89,61 @@ export const CompletionView: React.FC<CompletionViewProps> = ({ onRestart, onDow
         </p>
       </div>
 
-      {/* Download do diagnóstico em PDF */}
-      {onDownloadPdf && (
-        <Button
-          onClick={onDownloadPdf}
-          className="mb-4 bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold rounded-xl px-6 py-3 shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
-        >
-          <FileDown className="w-4 h-4 mr-2 text-[#B69D64]" />
-          Baixar meu diagnóstico em PDF
-        </Button>
+      {/* Ações: baixar PDF + enviar por e-mail */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full max-w-lg mb-2">
+        {onDownloadPdf && (
+          <Button
+            onClick={onDownloadPdf}
+            className="flex-1 bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold rounded-xl px-6 py-3 shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <FileDown className="w-4 h-4 mr-2 text-[#B69D64]" />
+            Baixar PDF
+          </Button>
+        )}
+
+        {onSendEmail && (
+          <Button
+            onClick={handleSendEmail}
+            disabled={emailStatus === 'sending' || emailStatus === 'sent'}
+            variant="outline"
+            className="flex-1 bg-white/5 border-[#B69D64]/50 text-white hover:bg-white/10 hover:text-white font-bold rounded-xl px-6 py-3 shadow-sm active:scale-[0.98] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {emailStatus === 'sending' ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin text-[#B69D64]" />
+                Enviando...
+              </>
+            ) : emailStatus === 'sent' ? (
+              <>
+                <Check className="w-4 h-4 mr-2 text-emerald-400" />
+                E-mail enviado
+              </>
+            ) : emailStatus === 'error' ? (
+              <>
+                <AlertCircle className="w-4 h-4 mr-2 text-rose-400" />
+                Tentar novamente
+              </>
+            ) : (
+              <>
+                <Mail className="w-4 h-4 mr-2 text-[#B69D64]" />
+                Enviar PDF por e-mail
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+
+      {/* Feedback do envio por e-mail */}
+      {emailStatus === 'sent' && (
+        <p className="text-xs text-emerald-300/80 font-medium mb-4">
+          Enviamos o PDF do seu diagnóstico para o e-mail informado. Verifique também sua caixa de
+          spam.
+        </p>
+      )}
+      {emailStatus === 'error' && (
+        <p className="text-xs text-rose-300/80 font-medium mb-4">
+          {emailError || 'Não foi possível enviar o e-mail agora. Você ainda pode baixar o PDF.'}
+        </p>
       )}
 
       {/* Ação secundária para caso queira responder novamente */}

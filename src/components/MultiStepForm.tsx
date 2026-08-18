@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { initialFormData, FormStepData } from '@/types/diagnostico'
-import { submitDiagnostico } from '@/services/diagnostico'
+import { submitDiagnostico, enviarPdfPorEmail } from '@/services/diagnostico'
 import { calculateSolucaoRecomendada, calculateTemperaturaLead } from '@/types/scoring'
 import { gerarPdfDiagnostico } from '@/lib/pdfDiagnostico'
 import { Header } from '@/components/Header'
@@ -258,6 +258,18 @@ export const MultiStepForm: React.FC = () => {
     }
   }
 
+  const handleSendEmail = async () => {
+    return enviarPdfPorEmail({
+      nome: formData.nome,
+      email: formData.email,
+      solucao_recomendada: calculateSolucaoRecomendada(formData),
+      temperatura_lead: calculateTemperaturaLead(formData),
+      notas_gestao: formData.notas_gestao,
+      dor_principal: formData.dor_principal,
+      desejo_transformacao: formData.desejo_transformacao,
+    })
+  }
+
   const handleSubmit = async () => {
     setIsSubmitting(true)
     setErrorMessage(null)
@@ -405,7 +417,11 @@ export const MultiStepForm: React.FC = () => {
         {!hasStarted ? (
           <LandingView onStart={handleStart} />
         ) : isCompleted ? (
-          <CompletionView onRestart={handleRestart} onDownloadPdf={handleDownloadPdf} />
+          <CompletionView
+            onRestart={handleRestart}
+            onDownloadPdf={handleDownloadPdf}
+            onSendEmail={handleSendEmail}
+          />
         ) : (
           <div className="w-full max-w-2xl mx-auto bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-8 shadow-xl shadow-[#0A1E4A]/5 animate-fade-in flex flex-col justify-between">
             {/* Cabeçalho da Etapa Atual */}
