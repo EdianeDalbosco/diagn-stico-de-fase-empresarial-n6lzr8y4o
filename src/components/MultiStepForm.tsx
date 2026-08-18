@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { initialFormData, FormStepData } from '@/types/diagnostico'
 import { submitDiagnostico, enviarPdfPorEmail } from '@/services/diagnostico'
 import { calculateSolucaoRecomendada, calculateTemperaturaLead } from '@/types/scoring'
@@ -237,13 +237,17 @@ export const MultiStepForm: React.FC = () => {
     }
   }
 
+  // Calcula solução e temperatura uma vez por renderização para reutilizar nos handlers e na tela de conclusão
+  const solucaoRecomendada = useMemo(() => calculateSolucaoRecomendada(formData), [formData])
+  const temperaturaLead = useMemo(() => calculateTemperaturaLead(formData), [formData])
+
   const handleDownloadPdf = () => {
     try {
       gerarPdfDiagnostico({
         nome: formData.nome,
         data: new Date().toISOString(),
-        solucao_recomendada: calculateSolucaoRecomendada(formData),
-        temperatura_lead: calculateTemperaturaLead(formData),
+        solucao_recomendada: solucaoRecomendada,
+        temperatura_lead: temperaturaLead,
         notas_gestao: formData.notas_gestao,
         dor_principal: formData.dor_principal,
         desejo_transformacao: formData.desejo_transformacao,
@@ -262,8 +266,8 @@ export const MultiStepForm: React.FC = () => {
     return enviarPdfPorEmail({
       nome: formData.nome,
       email: formData.email,
-      solucao_recomendada: calculateSolucaoRecomendada(formData),
-      temperatura_lead: calculateTemperaturaLead(formData),
+      solucao_recomendada: solucaoRecomendada,
+      temperatura_lead: temperaturaLead,
       notas_gestao: formData.notas_gestao,
       dor_principal: formData.dor_principal,
       desejo_transformacao: formData.desejo_transformacao,
@@ -418,6 +422,7 @@ export const MultiStepForm: React.FC = () => {
           <LandingView onStart={handleStart} />
         ) : isCompleted ? (
           <CompletionView
+            solucaoRecomendada={solucaoRecomendada}
             onRestart={handleRestart}
             onDownloadPdf={handleDownloadPdf}
             onSendEmail={handleSendEmail}

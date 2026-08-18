@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 
 interface CompletionViewProps {
+  solucaoRecomendada?: string
   onRestart?: () => void
   onDownloadPdf?: () => void
   onSendEmail?: () => Promise<{ ok: boolean; error?: string }>
@@ -19,11 +20,87 @@ interface CompletionViewProps {
 
 type EmailStatus = 'idle' | 'sending' | 'sent' | 'error'
 
+interface MensagemSolucao {
+  titulo: string
+  corpo: string
+  proximoPasso: string
+}
+
+const MENSAGENS_POR_SOLUCAO: Record<string, MensagemSolucao> = {
+  'Contato comercial prioritário': {
+    titulo: 'Seu momento pede uma conversa prioritária.',
+    corpo:
+      'Suas respostas indicam uma dor forte com urgência real e disposição para investir. Isso acendeu um sinal importante na nossa equipe: você está pronto para uma solução agora.',
+    proximoPasso:
+      'Um consultor Edvanced vai entrar em contato com você em até 24 horas para uma conversa reservada.',
+  },
+  'Trajetória de Valor 5D': {
+    titulo: 'Seu conhecimento tem valor — agora é hora de estruturá-lo.',
+    corpo:
+      'Você possui experiência e conhecimento acumulados, mas ainda não transformou isso em uma oferta clara, posicionada e comercializável. A Trajetória de Valor 5D existe exatamente para esse momento: ajudar você a criar um método próprio, estruturar seu posicionamento e gerar receita a partir da sua expertise.',
+    proximoPasso:
+      'Nossa equipe vai entrar em contato para explicar como a Trajetória de Valor 5D acelera essa transformação.',
+  },
+  'Consultoria Empresarial': {
+    titulo: 'Seu negócio está pedindo estrutura — e nós ouvimos.',
+    corpo:
+      'Identificamos que os principais gargalos estão na organização interna, nos processos e na gestão. A Consultoria Empresarial Edvanced atua diretamente nessas áreas para transformar improviso em previsibilidade, organizar o que cresceu sem método e destravar resultados sustentáveis.',
+    proximoPasso:
+      'Nossa equipe vai entrar em contato para apresentar como a consultoria se encaixa no seu momento atual.',
+  },
+  'Consultoria / solução de gestão': {
+    titulo: 'Você está carregando o negócio nas costas — e isso tem solução.',
+    corpo:
+      'Suas respostas mostram que o operacional está consumindo seu tempo e energia, impedindo você de atuar no estratégico. A solução de gestão Edvanced foi criada para devolver a você o papel de empresário, com processos, delegação e autonomia.',
+    proximoPasso:
+      'Nossa equipe vai entrar em contato para mostrar como sair do operacional com segurança.',
+  },
+  'Jornada Líder 360': {
+    titulo: 'Liderança se desenvolve — e o próximo líder é você.',
+    corpo:
+      'Você lidera pessoas ou está se preparando para isso, e identificamos que os desafios estão em comunicação, delegação, engajamento e resultados com a equipe. A Jornada Líder 360 foi desenhada para transformar gestores em líderes de alta performance.',
+    proximoPasso:
+      'Nossa equipe vai entrar em contato para apresentar como a Jornada Líder 360 acelera seu desenvolvimento como líder.',
+  },
+  'Edvanced Business Club': {
+    titulo: 'Crescer junto é mais rápido do que crescer sozinho.',
+    corpo:
+      'Você busca networking qualificado, troca de experiências e um ambiente empresarial que desafie e apoie seu crescimento. O Edvanced Business Club conecta você a empresários que estão no mesmo movimento de expansão.',
+    proximoPasso:
+      'Nossa equipe vai entrar em contato para contar como funciona o clube e os próximos encontros.',
+  },
+  'Business Club': {
+    titulo: 'Seu negócio está pronto para o próximo nível de conexão.',
+    corpo:
+      'Você já tem um negócio estruturado e agora busca conexões empresariais de alto nível, networking estratégico e um ambiente de crescimento acelerado. O Business Club foi criado para empresários exatamente nesse momento.',
+    proximoPasso:
+      'Nossa equipe vai entrar em contato para apresentar o Business Club e os critérios de participação.',
+  },
+  'Conteúdo / evento / Experience / produto de entrada': {
+    titulo: 'Clareza é o primeiro passo — e ele começa aqui.',
+    corpo:
+      'Suas respostas indicam que você está em um momento de descoberta, buscando entender melhor seus próximos passos. Preparamos conteúdos, eventos e experiências pensados exatamente para quem está nessa fase de construção de clareza.',
+    proximoPasso:
+      'Fique de olho no seu e-mail e WhatsApp: vamos compartilhar materiais que vão ajudar você a enxergar o caminho com mais nitidez.',
+  },
+}
+
+const MENSAGEM_PADRAO: MensagemSolucao = {
+  titulo: 'Suas respostas nos ajudam a compreender seu momento.',
+  corpo:
+    'Suas respostas nos ajudam a compreender não apenas onde você está, mas principalmente qual pode ser o próximo passo para chegar onde deseja.',
+  proximoPasso:
+    'A equipe Edvanced poderá entrar em contato caso identifique uma solução compatível com o seu momento.',
+}
+
 export const CompletionView: React.FC<CompletionViewProps> = ({
+  solucaoRecomendada,
   onRestart,
   onDownloadPdf,
   onSendEmail,
 }) => {
+  const mensagem =
+    (solucaoRecomendada && MENSAGENS_POR_SOLUCAO[solucaoRecomendada]) || MENSAGEM_PADRAO
   const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle')
   const [emailError, setEmailError] = useState<string | null>(null)
 
@@ -64,15 +141,15 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
       </h2>
 
       <div className="space-y-4 max-w-lg text-[#4A5568] text-sm sm:text-base leading-relaxed mb-8">
-        <p className="bg-white p-4 sm:p-5 rounded-xl border border-[#E2E8F0] shadow-sm text-[#2D3748] text-left font-medium">
-          Suas respostas nos ajudam a compreender não apenas onde você está, mas principalmente qual
-          pode ser o próximo passo para chegar onde deseja.
-        </p>
-
-        <p className="text-white/60 text-xs sm:text-sm font-medium">
-          A equipe <span className="text-[#B69D64] font-bold">Edvanced</span> poderá entrar em
-          contato caso identifique uma solução compatível com o seu momento.
-        </p>
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#E2E8F0] shadow-sm text-[#2D3748] text-left">
+          <h3 className="text-[#0A1E4A] font-extrabold text-base sm:text-lg mb-3 leading-snug">
+            {mensagem.titulo}
+          </h3>
+          <p className="text-[#4A5568] text-sm leading-relaxed font-medium">{mensagem.corpo}</p>
+          <p className="text-[#B69D64] text-sm font-medium italic mt-4 pt-3 border-t border-[#E2E8F0] leading-relaxed">
+            {mensagem.proximoPasso}
+          </p>
+        </div>
       </div>
 
       {/* Tagline de Impacto com estilo Executivo Premium */}
