@@ -8,8 +8,6 @@ interface HeaderProps {
   isCompleted: boolean
 }
 
-import { Bird } from 'lucide-react'
-
 export const Header: React.FC<HeaderProps> = ({
   currentStep,
   totalSteps,
@@ -25,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Logo & Marca */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#102A6B] via-[#1A3A8A] to-[#102A6B] flex items-center justify-center text-[#B69D64] shadow-md shadow-black/20 border border-[#B69D64]/40 shrink-0">
-              <Bird className="w-5 h-5 sm:w-5 sm:h-5 stroke-[2]" />
+              <Compass className="w-5 h-5 sm:w-5 sm:h-5 stroke-[2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">

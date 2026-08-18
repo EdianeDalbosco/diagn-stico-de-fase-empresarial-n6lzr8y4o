@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Bird, Sparkles, Building2, TrendingUp, ShieldCheck, Compass, Lock } from 'lucide-react'
+import { Sparkles, Building2, TrendingUp, ShieldCheck, Compass, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface LandingViewProps {
@@ -27,7 +27,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       </p>
 
       {/* Texto de apoio */}
-      <p className="text-sm sm:text-base text-white/70 mb-8 max-w-lg leading-relaxed text-[#140542]">
+      <p className="text-sm sm:text-base text-white/70 mb-8 max-w-lg leading-relaxed">
         Descubra qual é o próximo passo para o seu negócio, sua carreira ou sua liderança. Em poucos
         minutos, identifique quais pontos hoje mais limitam o seu crescimento e receba a orientação
         estratégica ideal.
