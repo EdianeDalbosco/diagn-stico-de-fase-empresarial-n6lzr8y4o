@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast'
 export const MultiStepForm: React.FC = () => {
   const [hasStarted, setHasStarted] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
+  const [stepDirection, setStepDirection] = useState<'forward' | 'backward'>('forward')
   const [formData, setFormData] = useState<FormStepData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -48,6 +49,7 @@ export const MultiStepForm: React.FC = () => {
 
   const handleStart = () => {
     setHasStarted(true)
+    setStepDirection('forward')
     setCurrentStep(1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -225,6 +227,7 @@ export const MultiStepForm: React.FC = () => {
     }
 
     if (currentStep < totalSteps) {
+      setStepDirection('forward')
       setCurrentStep((prev) => prev + 1)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
@@ -236,6 +239,7 @@ export const MultiStepForm: React.FC = () => {
   const handlePrev = () => {
     if (currentStep > 1) {
       setErrorMessage(null)
+      setStepDirection('backward')
       setCurrentStep((prev) => prev - 1)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
@@ -436,7 +440,12 @@ export const MultiStepForm: React.FC = () => {
             onSendEmail={handleSendEmail}
           />
         ) : (
-          <div className="w-full max-w-2xl mx-auto animate-fade-in flex flex-col justify-between">
+          <div
+            key={`step-${currentStep}`}
+            className={`w-full max-w-2xl mx-auto flex flex-col justify-between ${
+              stepDirection === 'forward' ? 'animate-step-forward' : 'animate-step-backward'
+            }`}
+          >
             {/* Cabeçalho da Etapa Atual */}
             <div className="mb-6 pb-4 border-b border-white/10">
               <div className="flex items-center justify-between text-xs font-bold tracking-wider mb-1 uppercase">

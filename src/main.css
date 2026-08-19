@@ -255,4 +255,35 @@
   .animate-spotlight {
     animation: spotlight 2s ease forwards;
   }
+
+  /* Step transitions for MultiStepForm — premium fade + lateral slide */
+  @keyframes step-enter-forward {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes step-enter-backward {
+    from {
+      opacity: 0;
+      transform: translateX(-24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-step-forward {
+    animation: step-enter-forward 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-step-backward {
+    animation: step-enter-backward 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
