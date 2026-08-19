@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf'
 import { FormStepData, SolucaoRecomendada, TemperaturaLead } from '@/types/diagnostico'
+import { getLabelPublicoSolucao } from '@/lib/solucaoLabels'
 
 // Identidade visual da marca Edvanced
 const NAVY = '#0A1E4A'
@@ -140,13 +141,16 @@ export function construirPdfDiagnostico(data: PdfDiagnosticoData): jsPDF {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(9)
   doc.setTextColor(hexToRgb(TEXT_MUTED)[0], hexToRgb(TEXT_MUTED)[1], hexToRgb(TEXT_MUTED)[2])
-  doc.text('SOLUÇÃO RECOMENDADA', margin, y)
+  doc.text('DIRECIONAMENTO', margin, y)
   doc.text('TEMPERATURA DO LEAD', colX2, y)
 
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
   doc.setTextColor(hexToRgb(TEXT_DARK)[0], hexToRgb(TEXT_DARK)[1], hexToRgb(TEXT_DARK)[2])
-  const solucaoLines = doc.splitTextToSize(data.solucao_recomendada || '-', colW - 10)
+  const solucaoLines = doc.splitTextToSize(
+    getLabelPublicoSolucao(data.solucao_recomendada),
+    colW - 10,
+  )
   doc.text(solucaoLines, margin, y + 14)
 
   // Badge temperatura
@@ -167,7 +171,7 @@ export function construirPdfDiagnostico(data: PdfDiagnosticoData): jsPDF {
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
   doc.setTextColor(255, 255, 255)
-  doc.text('NOTAS DE GESTÃO (0–10)', margin + 10, y + 16)
+  doc.text('NOTAS DE GESTÃO (0 a 10)', margin + 10, y + 16)
   y += 34
 
   const barraMaxW = 120

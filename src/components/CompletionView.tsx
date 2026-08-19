@@ -35,49 +35,49 @@ const MENSAGENS_POR_SOLUCAO: Record<string, MensagemSolucao> = {
       'Um consultor Edvanced vai entrar em contato com você em até 24 horas para uma conversa reservada.',
   },
   'Trajetória de Valor 5D': {
-    titulo: 'Seu conhecimento tem valor — agora é hora de estruturá-lo.',
+    titulo: 'Seu conhecimento tem valor. Agora é hora de estruturá-lo.',
     corpo:
-      'Você possui experiência e conhecimento acumulados, mas ainda não transformou isso em uma oferta clara, posicionada e comercializável. A Trajetória de Valor 5D existe exatamente para esse momento: ajudar você a criar um método próprio, estruturar seu posicionamento e gerar receita a partir da sua expertise.',
+      'Você possui experiência e conhecimento acumulados, mas ainda não transformou isso em uma oferta clara, posicionada e comercializável. Existe um caminho estruturado exatamente para esse momento: ajudar você a criar um método próprio, estruturar seu posicionamento e gerar receita a partir da sua expertise.',
     proximoPasso:
-      'Nossa equipe vai entrar em contato para explicar como a Trajetória de Valor 5D acelera essa transformação.',
+      'Nossa equipe vai entrar em contato para explicar como acelerar essa transformação.',
   },
   'Consultoria Empresarial': {
-    titulo: 'Seu negócio está pedindo estrutura — e nós ouvimos.',
+    titulo: 'Seu negócio está pedindo estrutura. E nós ouvimos.',
     corpo:
-      'Identificamos que os principais gargalos estão na organização interna, nos processos e na gestão. A Consultoria Empresarial Edvanced atua diretamente nessas áreas para transformar improviso em previsibilidade, organizar o que cresceu sem método e destravar resultados sustentáveis.',
+      'Identificamos que os principais gargalos estão na organização interna, nos processos e na gestão. A Edvanced atua diretamente nessas áreas para transformar improviso em previsibilidade, organizar o que cresceu sem método e destravar resultados sustentáveis.',
     proximoPasso:
-      'Nossa equipe vai entrar em contato para apresentar como a consultoria se encaixa no seu momento atual.',
+      'Nossa equipe vai entrar em contato para apresentar como essa solução se encaixa no seu momento atual.',
   },
   'Consultoria / solução de gestão': {
-    titulo: 'Você está carregando o negócio nas costas — e isso tem solução.',
+    titulo: 'Você está carregando o negócio nas costas. E isso tem solução.',
     corpo:
-      'Suas respostas mostram que o operacional está consumindo seu tempo e energia, impedindo você de atuar no estratégico. A solução de gestão Edvanced foi criada para devolver a você o papel de empresário, com processos, delegação e autonomia.',
+      'Suas respostas mostram que o operacional está consumindo seu tempo e energia, impedindo você de atuar no estratégico. Existe uma solução criada para devolver a você o papel de empresário, com processos, delegação e autonomia.',
     proximoPasso:
       'Nossa equipe vai entrar em contato para mostrar como sair do operacional com segurança.',
   },
   'Jornada Líder 360': {
-    titulo: 'Liderança se desenvolve — e o próximo líder é você.',
+    titulo: 'Liderança se desenvolve. E o próximo líder é você.',
     corpo:
-      'Você lidera pessoas ou está se preparando para isso, e identificamos que os desafios estão em comunicação, delegação, engajamento e resultados com a equipe. A Jornada Líder 360 foi desenhada para transformar gestores em líderes de alta performance.',
+      'Você lidera pessoas ou está se preparando para isso, e identificamos que os desafios estão em comunicação, delegação, engajamento e resultados com a equipe. Existe um programa desenhado para transformar gestores em líderes de alta performance.',
     proximoPasso:
-      'Nossa equipe vai entrar em contato para apresentar como a Jornada Líder 360 acelera seu desenvolvimento como líder.',
+      'Nossa equipe vai entrar em contato para apresentar como acelerar seu desenvolvimento como líder.',
   },
   'Edvanced Business Club': {
     titulo: 'Crescer junto é mais rápido do que crescer sozinho.',
     corpo:
-      'Você busca networking qualificado, troca de experiências e um ambiente empresarial que desafie e apoie seu crescimento. O Edvanced Business Club conecta você a empresários que estão no mesmo movimento de expansão.',
+      'Você busca networking qualificado, troca de experiências e um ambiente empresarial que desafie e apoie seu crescimento. Conectamos você a empresários que estão no mesmo movimento de expansão.',
     proximoPasso:
-      'Nossa equipe vai entrar em contato para contar como funciona o clube e os próximos encontros.',
+      'Nossa equipe vai entrar em contato para contar como funciona e os próximos encontros.',
   },
   'Business Club': {
     titulo: 'Seu negócio está pronto para o próximo nível de conexão.',
     corpo:
-      'Você já tem um negócio estruturado e agora busca conexões empresariais de alto nível, networking estratégico e um ambiente de crescimento acelerado. O Business Club foi criado para empresários exatamente nesse momento.',
+      'Você já tem um negócio estruturado e agora busca conexões empresariais de alto nível, networking estratégico e um ambiente de crescimento acelerado. Existe um ambiente criado para empresários exatamente nesse momento.',
     proximoPasso:
-      'Nossa equipe vai entrar em contato para apresentar o Business Club e os critérios de participação.',
+      'Nossa equipe vai entrar em contato para apresentar essa oportunidade e os critérios de participação.',
   },
   'Conteúdo / evento / Experience / produto de entrada': {
-    titulo: 'Clareza é o primeiro passo — e ele começa aqui.',
+    titulo: 'Clareza é o primeiro passo. E ele começa aqui.',
     corpo:
       'Suas respostas indicam que você está em um momento de descoberta, buscando entender melhor seus próximos passos. Preparamos conteúdos, eventos e experiências pensados exatamente para quem está nessa fase de construção de clareza.',
     proximoPasso:

@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { getDiagnosticoById } from '@/services/diagnostico'
 import { gerarPdfDiagnostico } from '@/lib/pdfDiagnostico'
 import { DiagnosticoRecord, FormStepData, TemperaturaLead } from '@/types/diagnostico'
+import { getLabelPublicoSolucao } from '@/lib/solucaoLabels'
 import { useToast } from '@/hooks/use-toast'
 
 // Rótulos das 10 notas de gestão (mesma ordem usada no PDF)
@@ -278,11 +279,11 @@ const DiagnosticoResultado: React.FC = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="w-4 h-4 text-[#B69D64]" />
                   <p className="text-[10px] font-bold text-[#5A6E85] uppercase tracking-wider">
-                    Solução recomendada
+                    Direcionamento
                   </p>
                 </div>
                 <p className="text-sm font-extrabold text-[#0A1E4A] leading-snug">
-                  {registro.solucao_recomendada || '-'}
+                  {getLabelPublicoSolucao(registro.solucao_recomendada)}
                 </p>
               </div>
               <div className="rounded-xl border border-[#E2E8F0] bg-[#F8F9FA] p-4">
@@ -305,7 +306,7 @@ const DiagnosticoResultado: React.FC = () => {
             <div className="mb-8">
               <div className="rounded-lg bg-[#0A1E4A] px-4 py-2.5 mb-4">
                 <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                  Notas de gestão (0–10)
+                  Notas de gestão (0 a 10)
                 </h3>
               </div>
               <div className="space-y-3">
