@@ -5,12 +5,9 @@ import {
   Sparkles,
   Bird,
   FileDown,
-  Mail,
-  Loader2,
-  Check,
-  AlertCircle,
   Link2,
   Copy,
+  Check,
   ExternalLink,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -21,10 +18,7 @@ interface CompletionViewProps {
   tokenAcesso?: string | null
   onRestart?: () => void
   onDownloadPdf?: () => void
-  onSendEmail?: () => Promise<{ ok: boolean; error?: string }>
 }
-
-type EmailStatus = 'idle' | 'sending' | 'sent' | 'error'
 
 interface MensagemSolucao {
   titulo: string
@@ -105,12 +99,9 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
   tokenAcesso,
   onRestart,
   onDownloadPdf,
-  onSendEmail,
 }) => {
   const mensagem =
     (solucaoRecomendada && MENSAGENS_POR_SOLUCAO[solucaoRecomendada]) || MENSAGEM_PADRAO
-  const [emailStatus, setEmailStatus] = useState<EmailStatus>('idle')
-  const [emailError, setEmailError] = useState<string | null>(null)
   const [linkCopiado, setLinkCopiado] = useState(false)
 
   // Link único e revisitável do diagnóstico (/diagnostico/:id?token=TOKEN)
@@ -140,24 +131,6 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
       setTimeout(() => setLinkCopiado(false), 2500)
     } catch (err) {
       console.error('Erro ao copiar link:', err)
-    }
-  }
-
-  const handleSendEmail = async () => {
-    if (!onSendEmail || emailStatus === 'sending' || emailStatus === 'sent') return
-    setEmailStatus('sending')
-    setEmailError(null)
-    try {
-      const res = await onSendEmail()
-      if (res.ok) {
-        setEmailStatus('sent')
-      } else {
-        setEmailStatus('error')
-        setEmailError(res.error || 'Não foi possível enviar o e-mail.')
-      }
-    } catch (err) {
-      setEmailStatus('error')
-      setEmailError(err instanceof Error ? err.message : 'Falha inesperada ao enviar o e-mail.')
     }
   }
 
@@ -260,61 +233,21 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
         </div>
       )}
 
-      {/* Ações: baixar PDF + enviar por e-mail */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full max-w-lg mb-2">
-        {onDownloadPdf && (
-          <Button
-            onClick={onDownloadPdf}
-            className="flex-1 bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold rounded-xl px-6 py-3 shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
-          >
-            <FileDown className="w-4 h-4 mr-2 text-[#B69D64]" />
-            Baixar PDF
-          </Button>
-        )}
+      {/* Aviso de envio automático do PDF por e-mail */}
+      <p className="text-xs text-white/70 font-medium mb-6 max-w-lg leading-relaxed">
+        Enviamos o relatório em PDF para o e-mail informado. Caso não chegue, você ainda pode
+        baixá-lo abaixo.
+      </p>
 
-        {onSendEmail && (
-          <Button
-            onClick={handleSendEmail}
-            disabled={emailStatus === 'sending' || emailStatus === 'sent'}
-            variant="outline"
-            className="flex-1 bg-white/5 border-[#B69D64]/50 text-white hover:bg-white/10 hover:text-white font-bold rounded-xl px-6 py-3 shadow-sm active:scale-[0.98] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {emailStatus === 'sending' ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin text-[#B69D64]" />
-                Enviando...
-              </>
-            ) : emailStatus === 'sent' ? (
-              <>
-                <Check className="w-4 h-4 mr-2 text-emerald-400" />
-                E-mail enviado
-              </>
-            ) : emailStatus === 'error' ? (
-              <>
-                <AlertCircle className="w-4 h-4 mr-2 text-rose-400" />
-                Tentar novamente
-              </>
-            ) : (
-              <>
-                <Mail className="w-4 h-4 mr-2 text-[#B69D64]" />
-                Enviar PDF por e-mail
-              </>
-            )}
-          </Button>
-        )}
-      </div>
-
-      {/* Feedback do envio por e-mail */}
-      {emailStatus === 'sent' && (
-        <p className="text-xs text-emerald-300/80 font-medium mb-4">
-          Enviamos o PDF do seu diagnóstico para o e-mail informado. Verifique também sua caixa de
-          spam.
-        </p>
-      )}
-      {emailStatus === 'error' && (
-        <p className="text-xs text-rose-300/80 font-medium mb-4">
-          {emailError || 'Não foi possível enviar o e-mail agora. Você ainda pode baixar o PDF.'}
-        </p>
+      {/* Ação: baixar PDF */}
+      {onDownloadPdf && (
+        <Button
+          onClick={onDownloadPdf}
+          className="w-full max-w-lg bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold rounded-xl px-6 py-3 shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
+        >
+          <FileDown className="w-4 h-4 mr-2 text-[#B69D64]" />
+          Baixar PDF
+        </Button>
       )}
 
       {/* Ação secundária para caso queira responder novamente */}
@@ -322,7 +255,7 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
         <Button
           variant="outline"
           onClick={onRestart}
-          className="text-xs font-semibold text-[#0A1E4A] hover:bg-[#F8F9FA] border-[#CBD5E0] rounded-xl px-5 py-2.5 shadow-sm"
+          className="mt-6 text-xs font-semibold text-[#0A1E4A] hover:bg-[#F8F9FA] border-[#CBD5E0] rounded-xl px-5 py-2.5 shadow-sm"
         >
           Preencher outro diagnóstico
         </Button>

@@ -92,6 +92,7 @@ export async function getDiagnosticoById(id: string): Promise<DiagnosticoRecord>
 export async function enviarPdfPorEmail(data: {
   nome: string
   email: string
+  whatsapp: string
   solucao_recomendada: string
   temperatura_lead: TemperaturaLead
   notas_gestao: FormStepData['notas_gestao']
@@ -112,6 +113,7 @@ export async function enviarPdfPorEmail(data: {
     const form = new FormData()
     form.append('nome', data.nome)
     form.append('email', data.email)
+    form.append('whatsapp', data.whatsapp)
     form.append('solucao', data.solucao_recomendada)
     form.append('temperatura', data.temperatura_lead)
     form.append('pdf', pdfBlob, 'diagnostico.pdf')

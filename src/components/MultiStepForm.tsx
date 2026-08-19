@@ -274,6 +274,7 @@ export const MultiStepForm: React.FC = () => {
     return enviarPdfPorEmail({
       nome: formData.nome,
       email: formData.email,
+      whatsapp: formData.whatsapp,
       solucao_recomendada: solucaoRecomendada,
       temperatura_lead: temperaturaLead,
       notas_gestao: formData.notas_gestao,
@@ -292,6 +293,13 @@ export const MultiStepForm: React.FC = () => {
       setSavedTokenAcesso(record?.token_acesso ?? null)
       setIsCompleted(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
+
+      // Dispara o envio automático do PDF por e-mail (lead + administradora).
+      // É best-effort: qualquer falha é apenas registrada e não bloqueia a
+      // tela de conclusão — o diagnóstico já foi salvo com sucesso acima.
+      handleSendEmail().catch((err) => {
+        console.error('Falha ao enviar PDF por e-mail automaticamente:', err)
+      })
     } catch (err: unknown) {
       console.error('Erro ao enviar diagnóstico:', err)
       const msg =
@@ -437,7 +445,6 @@ export const MultiStepForm: React.FC = () => {
             tokenAcesso={savedTokenAcesso}
             onRestart={handleRestart}
             onDownloadPdf={handleDownloadPdf}
-            onSendEmail={handleSendEmail}
           />
         ) : (
           <div
