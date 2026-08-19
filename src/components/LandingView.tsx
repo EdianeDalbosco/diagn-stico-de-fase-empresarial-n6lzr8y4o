@@ -83,7 +83,9 @@ export const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
 
         <div className="flex items-center justify-center gap-2 text-xs text-white/60 font-medium">
           <ShieldCheck className="w-4 h-4 text-[#B69D64]" />
-          <span>Leva apenas 3 a 5 minutos &middot; Seguro e sem custo</span>
+          <span className="text-[#020024]">
+            Leva apenas 3 a 5 minutos &middot; Seguro e sem custo
+          </span>
         </div>
       </div>
 
