@@ -413,7 +413,7 @@ export const MultiStepForm: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#0A1E4A] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#0A1E4A] text-white flex flex-col justify-between">
       {/* Header Fixo */}
       <Header
         currentStep={currentStep}
@@ -436,29 +436,29 @@ export const MultiStepForm: React.FC = () => {
             onSendEmail={handleSendEmail}
           />
         ) : (
-          <div className="w-full max-w-2xl mx-auto bg-white border border-[#E2E8F0] rounded-2xl p-5 sm:p-8 shadow-xl shadow-[#0A1E4A]/5 animate-fade-in flex flex-col justify-between">
+          <div className="w-full max-w-2xl mx-auto animate-fade-in flex flex-col justify-between">
             {/* Cabeçalho da Etapa Atual */}
-            <div className="mb-6 pb-4 border-b border-[#E2E8F0]">
-              <div className="flex items-center justify-between text-xs font-bold text-[#B69D64] tracking-wider mb-1 uppercase">
-                <span>
+            <div className="mb-6 pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between text-xs font-bold tracking-wider mb-1 uppercase">
+                <span className="text-[#B69D64]">
                   ETAPA {currentStep} DE {totalSteps}
                 </span>
-                <span className="font-semibold text-[#0A1E4A]">
+                <span className="font-semibold text-[#B69D64]">
                   {Math.round((currentStep / totalSteps) * 100)}% CONCLUÍDO
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#0A1E4A] tracking-tight leading-snug">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight leading-snug">
                 {stepHeadings[currentStep]?.title}
               </h2>
-              <p className="text-xs sm:text-sm text-[#5A6E85] font-medium mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-white/70 font-medium mt-1.5 leading-relaxed">
                 {stepHeadings[currentStep]?.subtitle}
               </p>
             </div>
 
             {/* Mensagem de Erro de Validação */}
             {errorMessage && (
-              <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-xs sm:text-sm text-rose-700 font-medium animate-fade-in shadow-sm">
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div className="mb-5 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 flex items-start gap-2.5 text-xs sm:text-sm text-rose-200 font-medium animate-fade-in shadow-sm">
+                <AlertCircle className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
@@ -467,14 +467,14 @@ export const MultiStepForm: React.FC = () => {
             <div className="my-2">{renderCurrentStep()}</div>
 
             {/* Controles de Navegação (Voltar / Avançar / Enviar) */}
-            <div className="mt-8 pt-5 border-t border-[#E2E8F0] flex items-center justify-between gap-3">
+            <div className="mt-8 pt-5 border-t border-white/10 flex items-center justify-between gap-3">
               {currentStep > 1 ? (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handlePrev}
                   disabled={isSubmitting}
-                  className="px-5 h-11 rounded-xl border-[#CBD5E0] text-[#0A1E4A] hover:bg-[#F8F9FA] hover:text-[#0A1E4A] font-semibold"
+                  className="px-5 h-11 rounded-xl border-[#B69D64]/40 text-white hover:bg-[#0D224A] hover:text-white hover:border-[#B69D64] font-semibold bg-transparent"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1.5" />
                   Voltar
@@ -487,7 +487,7 @@ export const MultiStepForm: React.FC = () => {
                 type="button"
                 onClick={handleNext}
                 disabled={isSubmitting}
-                className="ml-auto px-7 h-11 rounded-xl bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold shadow-md shadow-[#0A1E4A]/15 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
+                className="ml-auto px-7 h-11 rounded-xl bg-gradient-to-r from-[#0A1E4A] via-[#102A6B] to-[#0A1E4A] hover:from-[#0d2663] hover:to-[#08173d] text-white font-bold shadow-md shadow-black/30 border border-[#B69D64]/40 hover:border-[#B69D64] active:scale-[0.98] transition-all cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -512,7 +512,7 @@ export const MultiStepForm: React.FC = () => {
       </main>
 
       {/* Rodapé Minimalista */}
-      <footer className="py-4 text-center text-xs text-[#718096] font-medium border-t border-[#E2E8F0]/60 bg-white/50">
+      <footer className="py-4 text-center text-xs text-white/40 font-medium border-t border-white/10">
         <p>
           EDVANCED &copy; {new Date().getFullYear()} &middot; Hub de Desenvolvimento &amp; Soluções
           Empresariais

@@ -13,6 +13,13 @@ interface StepProps {
   error?: string | null
 }
 
+// Classes reutilizáveis para o tema dark premium (navy + dourado)
+const inputClass =
+  'bg-white/95 border-[#B69D64]/30 focus:border-[#B69D64] focus:ring-[#B69D64]/40 text-[#0A1E4A] placeholder:text-[#94A3B8] h-11 rounded-xl shadow-sm'
+
+const textareaClass =
+  'bg-white/95 border-[#B69D64]/30 focus:border-[#B69D64] focus:ring-[#B69D64]/40 text-[#0A1E4A] placeholder:text-[#94A3B8] resize-none text-sm leading-relaxed p-4 rounded-xl shadow-sm'
+
 // Formata número de telefone brasileiro enquanto o usuário digita.
 // Aceita 10 dígitos (fixo: (XX) XXXX-XXXX) ou 11 dígitos (celular: (XX) XXXXX-XXXX).
 // Retorna apenas a string formatada; quem chama deve guardar apenas os dígitos.
@@ -25,7 +32,7 @@ const formatPhone = (digits: string): string => {
   return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`
 }
 
-// Option item helper component
+// Option item helper component — estilo card escuro com borda dourada sutil
 const RadioOption: React.FC<{
   label: string
   selected: boolean
@@ -35,25 +42,25 @@ const RadioOption: React.FC<{
     type="button"
     onClick={onClick}
     className={cn(
-      'w-full p-3.5 sm:p-4 text-left rounded-xl border transition-all duration-200 flex items-start justify-between gap-3 text-sm sm:text-base font-medium shadow-sm',
+      'w-full p-3.5 sm:p-4 text-left rounded-xl border transition-all duration-200 flex items-start justify-between gap-3 text-sm sm:text-base font-medium',
       selected
-        ? 'bg-[#0A1E4A]/5 border-[#0A1E4A] text-[#0A1E4A] ring-2 ring-[#B69D64]/60 shadow-md'
-        : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA] hover:border-[#B69D64]/50 hover:text-[#0A1E4A]',
+        ? 'bg-[#0D224A] border-[#B69D64] text-white ring-2 ring-[#B69D64]/50 shadow-md shadow-black/20'
+        : 'bg-[#0D224A]/60 border-[#B69D64]/30 text-white/90 hover:bg-[#0D224A] hover:border-[#B69D64]/60',
     )}
   >
     <span className="flex-1 leading-snug">{label}</span>
     <div
       className={cn(
         'w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors',
-        selected ? 'border-[#0A1E4A] bg-[#0A1E4A] text-[#B69D64]' : 'border-[#CBD5E0] bg-white',
+        selected ? 'border-[#B69D64] bg-[#B69D64]' : 'border-white/40 bg-transparent',
       )}
     >
-      {selected && <div className="w-2 h-2 rounded-full bg-[#B69D64]" />}
+      {selected && <div className="w-2 h-2 rounded-full bg-white" />}
     </div>
   </button>
 )
 
-// Checkbox item helper component
+// Checkbox item helper component — estilo card escuro com borda dourada sutil
 const CheckboxOption: React.FC<{
   label: string
   selected: boolean
@@ -65,23 +72,53 @@ const CheckboxOption: React.FC<{
     onClick={onClick}
     disabled={disabled && !selected}
     className={cn(
-      'w-full p-3 sm:p-3.5 text-left rounded-xl border transition-all duration-200 flex items-start justify-between gap-3 text-sm font-medium shadow-sm',
+      'w-full p-3 sm:p-3.5 text-left rounded-xl border transition-all duration-200 flex items-start justify-between gap-3 text-sm font-medium',
       selected
-        ? 'bg-[#0A1E4A]/5 border-[#0A1E4A] text-[#0A1E4A] ring-2 ring-[#B69D64]/60'
+        ? 'bg-[#0D224A] border-[#B69D64] text-white ring-2 ring-[#B69D64]/50 shadow-md shadow-black/20'
         : disabled
-          ? 'opacity-40 bg-[#EDF2F7] border-[#E2E8F0] text-[#A0AEC0] cursor-not-allowed'
-          : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA] hover:border-[#B69D64]/50 hover:text-[#0A1E4A]',
+          ? 'opacity-40 bg-[#0D224A]/40 border-white/10 text-white/40 cursor-not-allowed'
+          : 'bg-[#0D224A]/60 border-[#B69D64]/30 text-white/90 hover:bg-[#0D224A] hover:border-[#B69D64]/60',
     )}
   >
     <span className="flex-1 leading-snug">{label}</span>
     <div
       className={cn(
         'w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors',
-        selected ? 'border-[#0A1E4A] bg-[#0A1E4A] text-[#B69D64]' : 'border-[#CBD5E0] bg-white',
+        selected ? 'border-[#B69D64] bg-[#B69D64] text-white' : 'border-white/40 bg-transparent',
       )}
     >
-      {selected && <Check className="w-3.5 h-3.5 stroke-[3] text-[#B69D64]" />}
+      {selected && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
     </div>
+  </button>
+)
+
+// Botão de seleção em grade (estilo pill/card) reutilizável para o tema dark
+const GridSelectButton: React.FC<{
+  label: string
+  selected: boolean
+  disabled?: boolean
+  onClick: () => void
+  className?: string
+  icon?: React.ReactNode
+}> = ({ label, selected, disabled, onClick, className, icon }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled && !selected}
+    className={cn(
+      'rounded-xl border text-center font-medium transition-all shadow-sm',
+      selected
+        ? 'bg-[#0D224A] border-[#B69D64] text-white ring-2 ring-[#B69D64]/50'
+        : disabled
+          ? 'opacity-40 bg-[#0D224A]/40 border-white/10 text-white/40 cursor-not-allowed'
+          : 'bg-[#0D224A]/60 border-[#B69D64]/30 text-white hover:bg-[#0D224A] hover:border-[#B69D64]/60',
+      className,
+    )}
+  >
+    <span className="flex items-center justify-between gap-2">
+      <span className="flex-1">{label}</span>
+      {icon}
+    </span>
   </button>
 )
 
@@ -110,8 +147,8 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="nome" className="text-sm font-bold text-[#0A1E4A]">
-          Nome completo <span className="text-rose-500">*</span>
+        <Label htmlFor="nome" className="text-sm font-bold text-white">
+          Nome completo <span className="text-[#B69D64]">*</span>
         </Label>
         <Input
           id="nome"
@@ -119,13 +156,13 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
           placeholder="Digite seu nome completo"
           value={formData.nome}
           onChange={(e) => updateFormData({ nome: e.target.value })}
-          className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
+          className={inputClass}
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="whatsapp" className="text-sm font-bold text-[#0A1E4A]">
-          WhatsApp com DDD <span className="text-rose-500">*</span>
+        <Label htmlFor="whatsapp" className="text-sm font-bold text-white">
+          WhatsApp com DDD <span className="text-[#B69D64]">*</span>
         </Label>
         <Input
           id="whatsapp"
@@ -134,13 +171,13 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
           placeholder="(00) 00000-0000"
           value={whatsappDisplay}
           onChange={handleWhatsappChange}
-          className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
+          className={inputClass}
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-sm font-bold text-[#0A1E4A]">
-          E-mail principal <span className="text-rose-500">*</span>
+        <Label htmlFor="email" className="text-sm font-bold text-white">
+          E-mail principal <span className="text-[#B69D64]">*</span>
         </Label>
         <Input
           id="email"
@@ -148,14 +185,14 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
           placeholder="seuemail@exemplo.com"
           value={formData.email}
           onChange={(e) => updateFormData({ email: e.target.value })}
-          className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
+          className={inputClass}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="instagram" className="text-sm font-bold text-[#0A1E4A]">
-            Instagram <span className="text-rose-500">*</span>
+          <Label htmlFor="instagram" className="text-sm font-bold text-white">
+            Instagram <span className="text-[#B69D64]">*</span>
           </Label>
           <Input
             id="instagram"
@@ -163,13 +200,13 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
             placeholder="Digite seu @ do Instagram"
             value={formData.instagram}
             onChange={(e) => updateFormData({ instagram: e.target.value })}
-            className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
+            className={inputClass}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="cidade_estado" className="text-sm font-bold text-[#0A1E4A]">
-            Cidade / Estado <span className="text-rose-500">*</span>
+          <Label htmlFor="cidade_estado" className="text-sm font-bold text-white">
+            Cidade / Estado <span className="text-[#B69D64]">*</span>
           </Label>
           <Input
             id="cidade_estado"
@@ -177,7 +214,7 @@ export const Step1: React.FC<StepProps> = ({ formData, updateFormData }) => {
             placeholder="Ex: São Paulo / SP"
             value={formData.cidade_estado}
             onChange={(e) => updateFormData({ cidade_estado: e.target.value })}
-            className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-11 rounded-xl shadow-sm"
+            className={inputClass}
           />
         </div>
       </div>
@@ -246,34 +283,28 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-sm font-bold text-[#0A1E4A]">
-          Você possui um negócio atualmente? <span className="text-rose-500">*</span>
+        <Label className="text-sm font-bold text-white">
+          Você possui um negócio atualmente? <span className="text-[#B69D64]">*</span>
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {statusNegocio.map((item) => (
-            <button
+            <GridSelectButton
               key={item}
-              type="button"
+              label={item}
+              selected={formData.tem_negocio === item}
               onClick={() => updateFormData({ tem_negocio: item })}
-              className={cn(
-                'p-3 text-center rounded-xl border text-sm font-bold transition-all shadow-sm',
-                formData.tem_negocio === item
-                  ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
-                  : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA] hover:border-[#B69D64]',
-              )}
-            >
-              {item}
-            </button>
+              className="p-3 text-sm font-bold"
+            />
           ))}
         </div>
       </div>
 
       {/* Se SIM ou se ESTOU ESTRUTURANDO, mostrar detalhes adicionais */}
       {formData.tem_negocio === 'Sim' && (
-        <div className="space-y-5 pt-4 border-t border-[#E2E8F0] animate-fade-in">
+        <div className="space-y-5 pt-4 border-t border-white/10 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="nome_empresa" className="text-xs font-bold text-[#0A1E4A]">
+              <Label htmlFor="nome_empresa" className="text-xs font-bold text-white">
                 Nome da empresa
               </Label>
               <Input
@@ -281,12 +312,12 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                 placeholder="Ex: Minha Empresa"
                 value={formData.nome_empresa}
                 onChange={(e) => updateFormData({ nome_empresa: e.target.value })}
-                className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-10 rounded-xl shadow-sm"
+                className={cn(inputClass, 'h-10')}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="segmento" className="text-xs font-bold text-[#0A1E4A]">
+              <Label htmlFor="segmento" className="text-xs font-bold text-white">
                 Segmento de atuação
               </Label>
               <Input
@@ -294,79 +325,63 @@ export const Step3: React.FC<StepProps> = ({ formData, updateFormData }) => {
                 placeholder="Ex: Consultoria, Saúde, Varejo, etc."
                 value={formData.segmento}
                 onChange={(e) => updateFormData({ segmento: e.target.value })}
-                className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] h-10 rounded-xl shadow-sm"
+                className={cn(inputClass, 'h-10')}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-[#0A1E4A]">
+            <Label className="text-xs font-bold text-white">
               Há quanto tempo a empresa existe?
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {tempoOptions.map((tempo) => (
-                <button
+                <GridSelectButton
                   key={tempo}
-                  type="button"
+                  label={tempo}
+                  selected={formData.tempo_empresa === tempo}
                   onClick={() => updateFormData({ tempo_empresa: tempo })}
-                  className={cn(
-                    'p-2.5 text-xs text-center font-medium rounded-xl border transition-all shadow-sm',
-                    formData.tempo_empresa === tempo
-                      ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
-                      : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
-                  )}
-                >
-                  {tempo}
-                </button>
+                  className="p-2.5 text-xs"
+                />
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-[#0A1E4A]">
+            <Label className="text-xs font-bold text-white">
               Quantas pessoas fazem parte da equipe?
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {equipeOptions.map((eq) => (
-                <button
+                <GridSelectButton
                   key={eq}
-                  type="button"
+                  label={eq}
+                  selected={formData.tamanho_equipe === eq}
                   onClick={() => updateFormData({ tamanho_equipe: eq })}
-                  className={cn(
-                    'p-2.5 text-xs text-center font-medium rounded-xl border transition-all shadow-sm',
-                    formData.tamanho_equipe === eq
-                      ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
-                      : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
-                  )}
-                >
-                  {eq}
-                </button>
+                  className="p-2.5 text-xs"
+                />
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-[#0A1E4A]">
+            <Label className="text-xs font-bold text-white">
               Qual é aproximadamente o faturamento médio mensal atual?
             </Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {faturamentoOptions.map((fat) => (
-                <button
+                <GridSelectButton
                   key={fat}
-                  type="button"
+                  label={fat}
+                  selected={formData.faixa_faturamento === fat}
                   onClick={() => updateFormData({ faixa_faturamento: fat })}
-                  className={cn(
-                    'p-2.5 text-xs font-medium text-left rounded-xl border transition-all flex items-center justify-between shadow-sm',
-                    formData.faixa_faturamento === fat
-                      ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
-                      : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
-                  )}
-                >
-                  <span>{fat}</span>
-                  {formData.faixa_faturamento === fat && (
-                    <Check className="w-3.5 h-3.5 text-[#B69D64]" />
-                  )}
-                </button>
+                  className="p-2.5 text-xs text-left"
+                  icon={
+                    formData.faixa_faturamento === fat ? (
+                      <Check className="w-3.5 h-3.5 text-[#B69D64] shrink-0" />
+                    ) : null
+                  }
+                />
               ))}
             </div>
           </div>
@@ -424,15 +439,15 @@ export const Step4: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs px-1">
-        <span className="text-[#5A6E85] font-medium">Selecione até 3 opções</span>
+        <span className="text-white/70 font-medium">Selecione até 3 opções</span>
         <span
           className={cn(
             'px-2.5 py-0.5 rounded-full font-bold',
             selectedCount === 3
-              ? 'bg-[#B69D64]/20 text-[#8C753E] border border-[#B69D64]/40'
+              ? 'bg-[#B69D64]/20 text-[#D4B97A] border border-[#B69D64]/40'
               : selectedCount > 0
-                ? 'bg-[#0A1E4A]/10 text-[#0A1E4A] border border-[#0A1E4A]/30'
-                : 'bg-[#E2E8F0] text-[#718096]',
+                ? 'bg-white/10 text-white border border-white/30'
+                : 'bg-white/5 text-white/50 border border-white/10',
           )}
         >
           {selectedCount} de 3 selecionadas
@@ -464,7 +479,7 @@ export const Step4: React.FC<StepProps> = ({ formData, updateFormData }) => {
 export const Step5: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-3">
-      <p className="text-xs text-[#5A6E85] font-medium">
+      <p className="text-xs text-white/70 font-medium">
         Seja o mais específico(a) possível. Isso nos ajuda a entender a urgência e o tamanho do
         gargalo.
       </p>
@@ -473,9 +488,9 @@ export const Step5: React.FC<StepProps> = ({ formData, updateFormData }) => {
         rows={6}
         value={formData.dor_principal}
         onChange={(e) => updateFormData({ dor_principal: e.target.value })}
-        className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] resize-none text-sm leading-relaxed p-4 rounded-xl shadow-sm"
+        className={textareaClass}
       />
-      <div className="text-right text-[11px] text-[#718096] font-medium">
+      <div className="text-right text-[11px] text-white/50 font-medium">
         {formData.dor_principal.length} caracteres
       </div>
     </div>
@@ -582,7 +597,7 @@ export const Step7: React.FC<StepProps> = ({ formData, updateFormData }) => {
 
   return (
     <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-2">
-      <p className="text-xs text-[#5A6E85] font-medium">
+      <p className="text-xs text-white/70 font-medium">
         Dê uma nota sincera de 0 (muito fraco / inexistente) a 10 (excelente / estruturado):
       </p>
 
@@ -591,21 +606,21 @@ export const Step7: React.FC<StepProps> = ({ formData, updateFormData }) => {
         return (
           <div
             key={area.key}
-            className="p-4 rounded-xl bg-white border border-[#E2E8F0] shadow-sm space-y-3"
+            className="p-4 rounded-xl bg-[#0D224A] border border-[#B69D64]/30 shadow-sm shadow-black/20 space-y-3"
           >
             <div className="flex items-center justify-between gap-2">
               <div>
-                <h4 className="text-sm font-bold text-[#0A1E4A]">{area.label}</h4>
-                <p className="text-[11px] text-[#5A6E85] font-medium">{area.description}</p>
+                <h4 className="text-sm font-bold text-white">{area.label}</h4>
+                <p className="text-[11px] text-white/60 font-medium">{area.description}</p>
               </div>
               <div
                 className={cn(
                   'w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm shrink-0 border shadow-sm',
                   val >= 8
-                    ? 'bg-[#B69D64]/15 text-[#8C753E] border-[#B69D64]'
+                    ? 'bg-[#B69D64]/20 text-[#D4B97A] border-[#B69D64]/50'
                     : val >= 5
-                      ? 'bg-[#0A1E4A]/10 text-[#0A1E4A] border-[#0A1E4A]/40'
-                      : 'bg-rose-50 text-rose-600 border-rose-200',
+                      ? 'bg-white/10 text-white border-white/30'
+                      : 'bg-rose-500/15 text-rose-300 border-rose-500/40',
                 )}
               >
                 {val}
@@ -621,7 +636,7 @@ export const Step7: React.FC<StepProps> = ({ formData, updateFormData }) => {
                 onValueChange={([newVal]) => handleSliderChange(area.key, newVal)}
                 className="cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-[#718096] font-semibold mt-2 px-0.5">
+              <div className="flex justify-between text-[10px] text-white/50 font-semibold mt-2 px-0.5">
                 <span>0 (Crítico)</span>
                 <span>5 (Médio)</span>
                 <span>10 (Excelente)</span>
@@ -667,8 +682,8 @@ export const Step8: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2.5">
-        <Label className="text-sm font-bold text-[#0A1E4A]">
-          Hoje você lidera pessoas? <span className="text-rose-500">*</span>
+        <Label className="text-sm font-bold text-white">
+          Hoje você lidera pessoas? <span className="text-[#B69D64]">*</span>
         </Label>
         {lideraOptions.map((opt) => (
           <RadioOption
@@ -681,8 +696,8 @@ export const Step8: React.FC<StepProps> = ({ formData, updateFormData }) => {
       </div>
 
       {isLider && (
-        <div className="space-y-3 pt-4 border-t border-[#E2E8F0] animate-fade-in">
-          <Label className="text-sm font-bold text-[#0A1E4A]">
+        <div className="space-y-3 pt-4 border-t border-white/10 animate-fade-in">
+          <Label className="text-sm font-bold text-white">
             Qual é hoje o seu maior desafio como líder?
           </Label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[40vh] overflow-y-auto pr-1">
@@ -718,10 +733,10 @@ export const Step9: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-2.5">
-        <Label className="text-sm font-bold text-[#0A1E4A] leading-snug">
+        <Label className="text-sm font-bold text-white leading-snug">
           Você possui algum conhecimento, experiência ou metodologia que poderia se transformar em
           um produto, serviço, mentoria, treinamento ou nova fonte de receita?{' '}
-          <span className="text-rose-500">*</span>
+          <span className="text-[#B69D64]">*</span>
         </Label>
         {options1.map((opt) => (
           <RadioOption
@@ -733,25 +748,19 @@ export const Step9: React.FC<StepProps> = ({ formData, updateFormData }) => {
         ))}
       </div>
 
-      <div className="space-y-2.5 pt-4 border-t border-[#E2E8F0]">
-        <Label className="text-sm font-bold text-[#0A1E4A]">
+      <div className="space-y-2.5 pt-4 border-t border-white/10">
+        <Label className="text-sm font-bold text-white">
           Você gostaria de transformar sua experiência em uma oferta mais clara e comercializável?
         </Label>
         <div className="grid grid-cols-3 gap-2.5">
           {options2.map((opt) => (
-            <button
+            <GridSelectButton
               key={opt}
-              type="button"
+              label={opt}
+              selected={formData.transformar_oferta === opt}
               onClick={() => updateFormData({ transformar_oferta: opt })}
-              className={cn(
-                'p-3 text-center rounded-xl border text-sm font-bold transition-all shadow-sm',
-                formData.transformar_oferta === opt
-                  ? 'bg-[#0A1E4A] border-[#0A1E4A] text-white ring-2 ring-[#B69D64]'
-                  : 'bg-white border-[#E2E8F0] text-[#2D3748] hover:bg-[#F8F9FA]',
-              )}
-            >
-              {opt}
-            </button>
+              className="p-3 text-sm font-bold"
+            />
           ))}
         </div>
       </div>
@@ -856,7 +865,7 @@ export const Step12: React.FC<StepProps> = ({ formData, updateFormData }) => {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-[#5A6E85] font-medium">Pode marcar quantos você identificar:</p>
+      <p className="text-xs text-white/70 font-medium">Pode marcar quantos você identificar:</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[55vh] overflow-y-auto pr-1">
         {options.map((opt) => {
           const isSelected = formData.impedimentos?.includes(opt) || false
@@ -959,7 +968,7 @@ export const Step15: React.FC<StepProps> = ({ formData, updateFormData }) => {
 export const Step16: React.FC<StepProps> = ({ formData, updateFormData }) => {
   return (
     <div className="space-y-3">
-      <p className="text-xs text-[#5A6E85] font-medium">
+      <p className="text-xs text-white/70 font-medium">
         O que muda na sua vida, no seu negócio ou na sua carreira quando esse problema for
         resolvido?
       </p>
@@ -968,9 +977,9 @@ export const Step16: React.FC<StepProps> = ({ formData, updateFormData }) => {
         rows={6}
         value={formData.porque_importante}
         onChange={(e) => updateFormData({ porque_importante: e.target.value })}
-        className="bg-white border-[#E2E8F0] focus:border-[#B69D64] focus:ring-[#B69D64] text-[#0A1E4A] placeholder:text-[#A0AEC0] resize-none text-sm leading-relaxed p-4 rounded-xl shadow-sm"
+        className={textareaClass}
       />
-      <div className="text-right text-[11px] text-[#718096] font-medium">
+      <div className="text-right text-[11px] text-white/50 font-medium">
         {formData.porque_importante.length} caracteres
       </div>
     </div>

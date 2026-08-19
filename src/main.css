@@ -69,11 +69,11 @@
     color: #ffffff;
   }
 
-  /* Custom Slider styling for Gold theme */
+  /* Custom Slider styling for Gold theme (dark navy context) */
   [role='slider'] {
-    background-color: #b69d64 !important;
-    border-color: #8c753e !important;
-    box-shadow: 0 0 0 2px rgba(182, 157, 100, 0.2) !important;
+    background-color: #ffffff !important;
+    border-color: #b69d64 !important;
+    box-shadow: 0 0 0 2px rgba(182, 157, 100, 0.25) !important;
   }
 
   /* NEVER REMOVE THIS */
