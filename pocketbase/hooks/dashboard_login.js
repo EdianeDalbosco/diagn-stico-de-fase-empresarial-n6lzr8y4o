@@ -7,8 +7,8 @@ routerAdd('POST', '/api/dashboard-login', (e) => {
   const expected = $os.getenv('DASHBOARD_PASSWORD') || ''
 
   if (!expected || provided !== expected) {
-    return e.json(401, { ok: false, error: 'Senha inválida.' })
+    return e.json(401, { success: false })
   }
 
-  return e.json(200, { ok: true })
+  return e.json(200, { success: true })
 })
