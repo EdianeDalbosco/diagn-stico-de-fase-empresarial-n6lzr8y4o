@@ -45,6 +45,7 @@ import {
   Search,
   ArrowUp,
   ArrowDown,
+  Flame,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { exportarDiagnosticosCsv } from '@/lib/csvExport'
@@ -103,9 +104,10 @@ const BAR_PALETTE = [
 
 // Estilo visual por temperatura do lead
 const temperaturaStyles: Record<string, string> = {
-  Quente: 'bg-rose-500/15 text-rose-300 border-rose-500/40',
-  Morno: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
-  Frio: 'bg-sky-500/15 text-sky-300 border-sky-500/40',
+  Quente:
+    'bg-gradient-to-r from-rose-500/25 to-amber-500/25 text-rose-200 border-rose-400/60 shadow-sm shadow-rose-950/40 font-extrabold ring-1 ring-rose-400/30',
+  Morno: 'bg-amber-500/15 text-amber-300 border-amber-500/40 font-semibold',
+  Frio: 'bg-sky-500/15 text-sky-300 border-sky-500/40 font-semibold',
 }
 
 // Estilo visual por status de follow-up (novo = azul, contatado = dourado, em negociação = âmbar, ganho = verde, perdido = cinza/vermelho)
@@ -408,6 +410,20 @@ const Dashboard: React.FC = () => {
     }).length
   }, [diagnosticos])
 
+  // Contagem de leads quentes (total e pendentes de contato)
+  const leadsQuentesTotal = useMemo(() => {
+    return diagnosticos.filter((d) => (d.temperatura_lead || '').trim().toLowerCase() === 'quente')
+      .length
+  }, [diagnosticos])
+
+  const leadsQuentesNovos = useMemo(() => {
+    return diagnosticos.filter((d) => {
+      const isQ = (d.temperatura_lead || '').trim().toLowerCase() === 'quente'
+      const isNovo = (d.status_followup || 'novo') === 'novo'
+      return isQ && isNovo
+    }).length
+  }, [diagnosticos])
+
   // -------- TELA DE LOGIN --------
   if (!autenticado) {
     return (
@@ -521,8 +537,51 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Banner de Alerta de Lead Quente no Topo (caso haja leads quentes pendentes de contato) */}
+        {leadsQuentesNovos > 0 && (
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-950/50 via-rose-900/30 to-[#0A1E4A] border-2 border-rose-500/60 shadow-xl shadow-rose-950/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-600 to-amber-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-rose-900/50 ring-2 ring-rose-400/40 animate-pulse">
+                <Flame className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black tracking-wider uppercase text-rose-300">
+                    ALERTA DE LEAD QUENTE
+                  </span>
+                  <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-rose-500 text-white tracking-wide uppercase">
+                    Prioridade Alta
+                  </span>
+                </div>
+                <p className="text-sm sm:text-base font-bold text-white mt-0.5">
+                  {leadsQuentesNovos === 1
+                    ? 'Há 1 lead quente aguardando seu primeiro contato!'
+                    : `Há ${leadsQuentesNovos} leads quentes aguardando seu primeiro contato!`}
+                </p>
+                <p className="text-xs text-white/70 mt-0.5">
+                  Leads quentes possuem alta urgência e prontidão comercial. Entre em contato rápido
+                  via WhatsApp para maximizar a conversão.
+                </p>
+              </div>
+            </div>
+            {filtroTemperatura !== 'Quente' && (
+              <Button
+                type="button"
+                onClick={() => {
+                  setFiltroTemperatura('Quente')
+                  setFiltroFollowup('todos')
+                }}
+                className="shrink-0 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-extrabold rounded-xl px-4 py-2 text-xs shadow-md shadow-rose-950/40 border border-amber-300/40 cursor-pointer"
+              >
+                <Flame className="w-3.5 h-3.5 mr-1.5" />
+                Filtrar Leads Quentes
+              </Button>
+            )}
+          </div>
+        )}
+
         {/* Cards de métricas (KPIs) — Executive Luxury */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm">
             <div className="flex items-start justify-between mb-3">
               <div>
@@ -538,6 +597,48 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <p className="text-[11px] text-[#5A6E85] font-medium">Todos os registros salvos</p>
+          </div>
+
+          <div
+            onClick={() =>
+              setFiltroTemperatura(filtroTemperatura === 'Quente' ? 'todas' : 'Quente')
+            }
+            className={cn(
+              'bg-white rounded-2xl border p-5 shadow-sm cursor-pointer transition-all hover:border-[#B69D64]',
+              leadsQuentesTotal > 0
+                ? 'border-rose-300 ring-2 ring-rose-500/20'
+                : 'border-[#E2E8F0]',
+            )}
+            title="Clique para filtrar apenas leads quentes"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[11px] font-bold text-rose-700 uppercase tracking-wider">
+                    Leads Quentes
+                  </p>
+                  {leadsQuentesNovos > 0 && (
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  )}
+                </div>
+                <p className="text-3xl font-extrabold text-rose-600 mt-1.5 leading-none flex items-center gap-2">
+                  {leadsQuentesTotal}
+                  {leadsQuentesNovos > 0 && (
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300">
+                      {leadsQuentesNovos} novos
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-rose-50 text-rose-600 border border-rose-200">
+                <Flame className="w-5 h-5" />
+              </div>
+            </div>
+            <p className="text-[11px] text-[#5A6E85] font-medium">
+              {filtroTemperatura === 'Quente'
+                ? 'Filtro ativo — clique para limpar'
+                : 'Prioridade alta de contato'}
+            </p>
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm">
@@ -974,17 +1075,52 @@ const Dashboard: React.FC = () => {
                     const statusAtual: StatusFollowup =
                       (d.status_followup as StatusFollowup) || 'novo'
                     const estaAtualizando = atualizandoStatusId === d.id
+                    const isQuente = (d.temperatura_lead || '').trim().toLowerCase() === 'quente'
 
                     return (
                       <tr
                         key={d.id}
-                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                        className={cn(
+                          'border-b transition-colors',
+                          isQuente
+                            ? 'bg-gradient-to-r from-rose-950/25 via-amber-950/15 to-transparent border-rose-500/30 hover:bg-rose-950/40'
+                            : 'border-white/5 hover:bg-white/5',
+                        )}
                       >
                         <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">
-                          {d.nome || '-'}
+                          <div className="flex items-center gap-2">
+                            {isQuente && (
+                              <span
+                                className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-rose-500 to-amber-500 text-white shrink-0 shadow-sm shadow-rose-950/50"
+                                title="Lead Quente — Prioridade Máxima"
+                              >
+                                <Flame className="w-3 h-3" />
+                              </span>
+                            )}
+                            <span className={cn(isQuente && 'font-bold text-white')}>
+                              {d.nome || '-'}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-white/80 whitespace-nowrap font-mono text-xs">
-                          {formatarWhatsapp(d.whatsapp)}
+                          {d.whatsapp ? (
+                            <a
+                              href={`https://wa.me/55${(d.whatsapp || '').replace(/\D/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={cn(
+                                'hover:underline transition-colors',
+                                isQuente
+                                  ? 'text-emerald-300 font-semibold hover:text-emerald-200'
+                                  : 'text-white/80 hover:text-white',
+                              )}
+                              title="Abrir no WhatsApp"
+                            >
+                              {formatarWhatsapp(d.whatsapp)}
+                            </a>
+                          ) : (
+                            '-'
+                          )}
                         </td>
                         <td className="px-4 py-3 text-white/80 whitespace-nowrap">
                           {d.email || '-'}
@@ -995,11 +1131,14 @@ const Dashboard: React.FC = () => {
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span
                             className={cn(
-                              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border',
+                              'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border',
                               temperaturaStyles[d.temperatura_lead] ||
                                 'bg-white/10 text-white/70 border-white/20',
                             )}
                           >
+                            {isQuente && (
+                              <Flame className="w-3 h-3 text-rose-300 fill-rose-300/30" />
+                            )}
                             {d.temperatura_lead || '-'}
                           </span>
                         </td>

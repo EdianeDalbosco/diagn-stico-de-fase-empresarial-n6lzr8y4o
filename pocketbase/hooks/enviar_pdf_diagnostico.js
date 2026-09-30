@@ -80,6 +80,27 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
       .replace(/"/g, '&quot;')
   }
 
+  // Identifica se o lead tem temperatura Quente
+  const isQuente = (temperatura || '').trim().toLowerCase() === 'quente'
+
+  // Status de follow-up inicial ou enviado
+  const statusFollowup = (body.status_followup || 'novo').toString()
+  const statusFollowupLabel =
+    statusFollowup === 'contatado'
+      ? 'Contatado'
+      : statusFollowup === 'em_negociacao'
+        ? 'Em Negociação'
+        : statusFollowup === 'ganho'
+          ? 'Ganho'
+          : statusFollowup === 'perdido'
+            ? 'Perdido'
+            : 'Novo'
+
+  // Assunto do e-mail ao admin: se Quente, prefixo com destaque imediato
+  const adminSubject = isQuente
+    ? '🔥 QUENTE — Novo Diagnóstico — ' + (nome || 'Lead')
+    : 'Novo Diagnóstico — ' + (nome || 'Lead')
+
   // Link público do dashboard
   const siteUrl = ($os.getenv('SITE_URL') || '').toString().replace(/\/+$/, '')
   const dashboardUrl = siteUrl ? siteUrl + '/dashboard' : '/dashboard'
@@ -104,7 +125,7 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     esc(temperatura) +
     '</td></tr>' +
     '</table>' +
-    '<p style="font-size:13px;line-height:1.6;color:#5A6E85;margin:0 0 8px;">Clareza para decidir. Estrutura para crescer. Direção para gerar novos resultados.</p>' +
+    '<p style="font-size:13px;line-6:color:#5A6E85;margin:0 0 8px;">Clareza para decidir. Estrutura para crescer. Direção para gerar novos resultados.</p>' +
     '</div>' +
     '<div style="background:#F8F9FA;padding:16px 28px;text-align:center;font-size:11px;color:#718096;">' +
     'EDVANCED © ' +
@@ -114,39 +135,72 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     '</div>'
 
   // ---------- E-mail da administradora ----------
+  const badgeTemperaturaHtml = isQuente
+    ? '<span style="display:inline-block;background:#FEE2E2;color:#B91C1C;border:1px solid #F87171;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:bold;letter-spacing:0.5px;">🔥 QUENTE (ALTA PRIORIDADE)</span>'
+    : '<span style="display:inline-block;background:#E0E7FF;color:#3730A3;border:1px solid #A5B4FC;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:bold;">' +
+      esc(temperatura || 'Normal') +
+      '</span>'
+
+  const bannerAlertaQuenteHtml = isQuente
+    ? '<div style="background:#FFF1F2;border-left:4px solid #E11D48;padding:14px 18px;margin-bottom:18px;border-radius:6px;">' +
+      '<strong style="color:#9F1239;font-size:14px;display:block;margin-bottom:3px;">🔥 Alerta de Lead Quente — Prioridade Máxima</strong>' +
+      '<span style="color:#BE123C;font-size:13px;line-height:1.4;">Este lead demonstrou alta urgência e prontidão comercial. Recomenda-se contato imediato via WhatsApp.</span>' +
+      '</div>'
+    : ''
+
+  const whatsappLink = whatsapp ? 'https://wa.me/55' + whatsapp.replace(/\D/g, '') : ''
+
+  const whatsappDisplayHtml = whatsappLink
+    ? '<a href="' +
+      esc(whatsappLink) +
+      '" style="color:#0A1E4A;font-weight:bold;text-decoration:none;">' +
+      esc(whatsapp) +
+      ' <span style="font-size:11px;color:#059669;font-weight:normal;">(abrir no WhatsApp ↗)</span></a>'
+    : esc(whatsapp || '-')
+
   const htmlAdmin =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;color:#1a202c;">' +
     '<div style="background:#0A1E4A;padding:24px 28px;border-bottom:4px solid #B69D64;">' +
     '<span style="color:#ffffff;font-size:22px;font-weight:bold;letter-spacing:2px;">EDVANCED</span><br/>' +
-    '<span style="color:#D4B97A;font-size:11px;font-weight:600;letter-spacing:1px;">NOVO DIAGNÓSTICO RECEBIDO</span>' +
+    '<span style="color:#D4B97A;font-size:11px;font-weight:600;letter-spacing:1px;">' +
+    (isQuente ? '🔥 ALERTA DE LEAD QUENTE · NOVO DIAGNÓSTICO' : 'NOVO DIAGNÓSTICO RECEBIDO') +
+    '</span>' +
     '</div>' +
     '<div style="padding:28px;background:#ffffff;">' +
-    '<h1 style="font-size:18px;color:#0A1E4A;margin:0 0 12px;">Novo Diagnóstico — ' +
+    bannerAlertaQuenteHtml +
+    '<h1 style="font-size:18px;color:#0A1E4A;margin:0 0 12px;">' +
+    (isQuente ? '🔥 ' : '') +
+    'Novo Diagnóstico — ' +
     esc(nome) +
     '</h1>' +
-    '<p style="font-size:14px;line-height:1.6;color:#4A5568;margin:0 0 16px;">Um novo diagnóstico de fase empresarial foi concluído. Veja abaixo o resumo do lead e o PDF em anexo.</p>' +
+    '<p style="font-size:14px;line-height:1.6;color:#4A5568;margin:0 0 16px;">Um novo diagnóstico de fase empresarial foi concluído. Veja abaixo o resumo completo do lead e o PDF anexado.</p>' +
     '<table style="width:100%;font-size:14px;border-collapse:collapse;margin:0 0 16px;">' +
-    '<tr><td style="padding:8px 0;color:#5A6E85;font-weight:600;width:40%;">Nome</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
+    '<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:8px 0;color:#5A6E85;font-weight:600;width:38%;">Nome</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
     esc(nome) +
     '</td></tr>' +
-    '<tr><td style="padding:8px 0;color:#5A6E85;font-weight:600;">WhatsApp</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
-    esc(whatsapp) +
+    '<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:8px 0;color:#5A6E85;font-weight:600;">Temperatura do lead</td><td style="padding:8px 0;">' +
+    badgeTemperaturaHtml +
     '</td></tr>' +
-    '<tr><td style="padding:8px 0;color:#5A6E85;font-weight:600;">E-mail</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
+    '<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:8px 0;color:#5A6E85;font-weight:600;">WhatsApp</td><td style="padding:8px 0;">' +
+    whatsappDisplayHtml +
+    '</td></tr>' +
+    '<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:8px 0;color:#5A6E85;font-weight:600;">E-mail</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;"><a href="mailto:' +
     esc(emailDestino) +
-    '</td></tr>' +
-    '<tr><td style="padding:8px 0;color:#5A6E85;font-weight:600;">Solução recomendada</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
+    '" style="color:#0A1E4A;text-decoration:none;">' +
+    esc(emailDestino) +
+    '</a></td></tr>' +
+    '<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:8px 0;color:#5A6E85;font-weight:600;">Solução recomendada</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
     esc(solucao) +
     '</td></tr>' +
-    '<tr><td style="padding:8px 0;color:#5A6E85;font-weight:600;">Temperatura do lead</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
-    esc(temperatura) +
+    '<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:8px 0;color:#5A6E85;font-weight:600;">Status follow-up</td><td style="padding:8px 0;color:#0A1E4A;font-weight:bold;">' +
+    esc(statusFollowupLabel) +
     '</td></tr>' +
     '</table>' +
-    '<p style="font-size:14px;line-height:1.6;color:#4A5568;margin:0 0 16px;">Acesse o dashboard para ver todos os detalhes:<br/>' +
+    '<p style="font-size:14px;line-height:1.6;color:#4A5568;margin:16px 0 20px;">Acesse o dashboard administrativo para ver todas as respostas completas:<br/>' +
     '<a href="' +
     esc(dashboardUrl) +
-    '" style="color:#0A1E4A;font-weight:bold;">' +
-    esc(dashboardUrl) +
+    '" style="display:inline-block;margin-top:8px;padding:10px 18px;background:#0A1E4A;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:13px;border:1px solid #B69D64;">' +
+    'Abrir Dashboard de Leads &rarr;' +
     '</a></p>' +
     '</div>' +
     '<div style="background:#F8F9FA;padding:16px 28px;text-align:center;font-size:11px;color:#718096;">' +
@@ -192,7 +246,7 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     }
   }
 
-  // ----- Envio para a administradora (cópia) -----
+  // ----- Envio para a administradora (resumo com PDF) -----
   let adminSent = true
   let adminError = ''
   let adminReader = null
@@ -201,7 +255,7 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
       const adminMessage = new MailerMessage({
         from: { address: senderAddress, name: senderName },
         to: [{ address: adminEmail }],
-        subject: 'Novo Diagnóstico — ' + (nome || 'Lead'),
+        subject: adminSubject,
         html: htmlAdmin,
         attachments: {},
       })

@@ -111,6 +111,7 @@ export async function enviarPdfPorEmail(data: {
   notas_gestao: FormStepData['notas_gestao']
   dor_principal: string
   desejo_transformacao: string
+  status_followup?: string
 }): Promise<{ ok: boolean; error?: string }> {
   try {
     const pdfBlob = gerarPdfBlob({
@@ -129,6 +130,7 @@ export async function enviarPdfPorEmail(data: {
     form.append('whatsapp', data.whatsapp)
     form.append('solucao', data.solucao_recomendada)
     form.append('temperatura', data.temperatura_lead)
+    form.append('status_followup', data.status_followup || 'novo')
     form.append('pdf', pdfBlob, 'diagnostico.pdf')
 
     let res = await fetch(`${pb.baseUrl}/backend/v1/enviar-pdf-diagnostico`, {

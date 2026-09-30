@@ -280,6 +280,7 @@ export const MultiStepForm: React.FC = () => {
       notas_gestao: formData.notas_gestao,
       dor_principal: formData.dor_principal,
       desejo_transformacao: formData.desejo_transformacao,
+      status_followup: 'novo',
     })
   }
 
