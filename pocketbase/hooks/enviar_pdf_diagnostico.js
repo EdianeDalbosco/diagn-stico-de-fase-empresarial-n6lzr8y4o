@@ -28,8 +28,11 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     pdfFile = null
   }
 
-  // E-mail da administradora — opcional. Se ausente, segue apenas para o lead.
-  const adminEmail = ($os.getenv('ADMIN_EMAIL') || '').toString().trim().toLowerCase()
+  // E-mail da administradora — opcional. Se ausente no env, utiliza o e-mail padrão edianedalbosco@gmail.com.
+  const adminEmail = ($os.getenv('ADMIN_EMAIL') || 'edianedalbosco@gmail.com')
+    .toString()
+    .trim()
+    .toLowerCase()
 
   const senderAddress = $app.settings().meta.senderAddress || 'no-reply@edvanced.com.br'
   const senderName = $app.settings().meta.senderName || 'Edvanced'
