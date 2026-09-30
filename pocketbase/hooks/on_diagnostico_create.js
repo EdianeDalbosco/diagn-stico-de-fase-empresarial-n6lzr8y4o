@@ -9,28 +9,38 @@
 // Por isso NUNCA usar acessores que possam lançar (getCreated() não existe
 // neste runtime) e sempre envolver efeitos colaterais em try/catch.
 onRecordAfterCreateSuccess((e) => {
-  const r = e.record
+  try {
+    const r = e.record
+    if (!r) {
+      e.next()
+      return
+    }
 
-  const nome = r.getString('nome')
-  const whatsapp = r.getString('whatsapp')
-  const email = r.getString('email')
-  const temperatura = r.getString('temperatura_lead')
-  const solucao = r.getString('solucao_recomendada')
-  const fase = r.getString('momento_atual')
-  const criado = r.getString('created')
+    const nome = r.getString('nome')
+    const whatsapp = r.getString('whatsapp')
+    const email = r.getString('email')
+    const temperatura = r.getString('temperatura_lead')
+    const solucao = r.getString('solucao_recomendada')
+    const fase = r.getString('momento_atual')
+    const statusFollowup = r.getString('status_followup') || 'novo'
+    const criado = r.getString('created')
 
-  const linha = '============================================='
-  console.log(linha)
-  console.log('🔔  NOVO LEAD DO DIAGNÓSTICO DE FASE EMPRESARIAL')
-  console.log(linha)
-  console.log('Nome:                  ' + nome)
-  console.log('WhatsApp:              ' + whatsapp)
-  console.log('E-mail:                ' + email)
-  console.log('Temperatura do lead:   ' + temperatura)
-  console.log('Solução recomendada:   ' + solucao)
-  console.log('Fase atual:            ' + fase)
-  console.log('Enviado em:            ' + criado)
-  console.log(linha)
+    const linha = '============================================='
+    console.log(linha)
+    console.log('🔔  NOVO LEAD DO DIAGNÓSTICO DE FASE EMPRESARIAL')
+    console.log(linha)
+    console.log('Nome:                  ' + nome)
+    console.log('WhatsApp:              ' + whatsapp)
+    console.log('E-mail:                ' + email)
+    console.log('Temperatura do lead:   ' + temperatura)
+    console.log('Solução recomendada:   ' + solucao)
+    console.log('Fase atual:            ' + fase)
+    console.log('Status de follow-up:   ' + statusFollowup)
+    console.log('Enviado em:            ' + criado)
+    console.log(linha)
+  } catch (err) {
+    console.log('[onRecordAfterCreateSuccess] Erro não fatal no log de novo lead:', err)
+  }
 
   e.next()
 }, 'diagnosticos')

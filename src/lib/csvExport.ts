@@ -1,4 +1,4 @@
-import { DiagnosticoRecord } from '@/types/diagnostico'
+import { DiagnosticoRecord, STATUS_FOLLOWUP_LABELS, StatusFollowup } from '@/types/diagnostico'
 
 // Ordem das 10 notas de gestão (mesma do FormStepData.notas_gestao)
 const NOTAS_GESTAO_KEYS: { key: keyof DiagnosticoRecord['notas_gestao']; label: string }[] = [
@@ -48,9 +48,9 @@ const CSV_HEADERS: string[] = [
   'Porque Importante',
   'Solução Recomendada',
   'Temperatura',
+  'Status Follow-up',
   'Data',
 ]
-
 /**
  * Escapa um valor para o formato CSV (separador ";").
  * Strings contêm ";" ou quebras de linha são envoltas em aspas duplas,
@@ -130,6 +130,9 @@ export function exportarDiagnosticosCsv(registros: DiagnosticoRecord[]): void {
       d.porque_importante,
       d.solucao_recomendada,
       d.temperatura_lead,
+      d.status_followup
+        ? STATUS_FOLLOWUP_LABELS[d.status_followup as StatusFollowup] || d.status_followup
+        : 'Novo',
       formatarDataCsv(d.created),
     ]
 

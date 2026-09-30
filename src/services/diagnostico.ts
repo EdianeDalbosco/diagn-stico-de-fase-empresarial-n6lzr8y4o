@@ -55,6 +55,7 @@ export async function submitDiagnostico(data: FormStepData): Promise<Diagnostico
     porque_importante: cleanText(data.porque_importante),
     solucao_recomendada,
     temperatura_lead,
+    status_followup: 'novo',
   }
 
   // Cria o registro. Como o schema tem createRule: "" (público), qualquer
@@ -79,6 +80,18 @@ export async function listDiagnosticos(limit = 50) {
  */
 export async function getDiagnosticoById(id: string): Promise<DiagnosticoRecord> {
   return pb.collection('diagnosticos').getOne<DiagnosticoRecord>(id)
+}
+
+/**
+ * Atualiza o status de follow-up de um diagnóstico.
+ */
+export async function updateStatusFollowup(
+  id: string,
+  status: 'novo' | 'contatado' | 'em_negociacao' | 'ganho' | 'perdido',
+): Promise<DiagnosticoRecord> {
+  return pb.collection('diagnosticos').update<DiagnosticoRecord>(id, {
+    status_followup: status,
+  })
 }
 
 /**

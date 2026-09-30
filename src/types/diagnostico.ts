@@ -72,6 +72,16 @@ export interface FormStepData {
 
 export type TemperaturaLead = 'Quente' | 'Morno' | 'Frio'
 
+export type StatusFollowup = 'novo' | 'contatado' | 'em_negociacao' | 'ganho' | 'perdido'
+
+export const STATUS_FOLLOWUP_LABELS: Record<StatusFollowup, string> = {
+  novo: 'Novo',
+  contatado: 'Contatado',
+  em_negociacao: 'Em negociação',
+  ganho: 'Ganho',
+  perdido: 'Perdido',
+}
+
 export type SolucaoRecomendada =
   | 'Contato comercial prioritário'
   | 'Trajetória de Valor 5D'
@@ -86,6 +96,7 @@ export interface DiagnosticoRecord extends FormStepData {
   id?: string
   solucao_recomendada: SolucaoRecomendada | string
   temperatura_lead: TemperaturaLead
+  status_followup?: StatusFollowup
   /** Token único que protege o acesso à página pública /diagnostico/:id */
   token_acesso?: string
   created?: string

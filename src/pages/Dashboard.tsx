@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
-import { DiagnosticoRecord, TemperaturaLead, SolucaoRecomendada } from '@/types/diagnostico'
+import {
+  DiagnosticoRecord,
+  TemperaturaLead,
+  SolucaoRecomendada,
+  StatusFollowup,
+  STATUS_FOLLOWUP_LABELS,
+} from '@/types/diagnostico'
+import { updateStatusFollowup } from '@/services/diagnostico'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -56,6 +63,14 @@ const SOLUCOES: SolucaoRecomendada[] = [
 
 const TEMPERATURAS: TemperaturaLead[] = ['Quente', 'Morno', 'Frio']
 
+const STATUS_FOLLOWUP_OPTIONS: StatusFollowup[] = [
+  'novo',
+  'contatado',
+  'em_negociacao',
+  'ganho',
+  'perdido',
+]
+
 // Paleta Executive Luxury — navy, dourado, off-white e acentos por temperatura
 const CHART_COLORS = {
   navy: '#0A1E4A',
@@ -91,6 +106,15 @@ const temperaturaStyles: Record<string, string> = {
   Quente: 'bg-rose-500/15 text-rose-300 border-rose-500/40',
   Morno: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
   Frio: 'bg-sky-500/15 text-sky-300 border-sky-500/40',
+}
+
+// Estilo visual por status de follow-up (novo = azul, contatado = dourado, em negociação = âmbar, ganho = verde, perdido = cinza/vermelho)
+const followupStyles: Record<StatusFollowup, string> = {
+  novo: 'bg-sky-500/15 text-sky-300 border-sky-500/40 hover:bg-sky-500/25',
+  contatado: 'bg-[#B69D64]/20 text-[#D4B97A] border-[#B69D64]/50 hover:bg-[#B69D64]/30',
+  em_negociacao: 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30',
+  ganho: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30',
+  perdido: 'bg-rose-500/15 text-rose-300 border-rose-500/30 hover:bg-rose-500/25',
 }
 
 const formatarData = (iso?: string): string => {
@@ -154,12 +178,14 @@ const Dashboard: React.FC = () => {
   // Filtros
   const [filtroTemperatura, setFiltroTemperatura] = useState<string>('todas')
   const [filtroSolucao, setFiltroSolucao] = useState<string>('todas')
+  const [filtroFollowup, setFiltroFollowup] = useState<string>('todos')
   const [buscaNome, setBuscaNome] = useState('')
+  const [atualizandoStatusId, setAtualizandoStatusId] = useState<string | null>(null)
 
   // Ordenação da tabela
   // sortKey = null => estado original (ordem de chegada, -created)
   // dir = 'asc' | 'desc'
-  type SortKey = 'data' | 'nome' | 'temperatura'
+  type SortKey = 'data' | 'nome' | 'temperatura' | 'followup'
   const [sortKey, setSortKey] = useState<SortKey | null>(null)
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
@@ -238,18 +264,36 @@ const Dashboard: React.FC = () => {
     setDiagnosticos([])
     setFiltroTemperatura('todas')
     setFiltroSolucao('todas')
+    setFiltroFollowup('todos')
     setBuscaNome('')
+  }
+
+  const handleUpdateStatus = async (id: string, novoStatus: StatusFollowup) => {
+    setAtualizandoStatusId(id)
+    try {
+      await updateStatusFollowup(id, novoStatus)
+      setDiagnosticos((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status_followup: novoStatus } : item)),
+      )
+    } catch (err) {
+      console.error('Erro ao atualizar status de follow-up:', err)
+      alert('Não foi possível atualizar o status. Tente novamente.')
+    } finally {
+      setAtualizandoStatusId(null)
+    }
   }
 
   const handleExportCsv = () => {
     exportarDiagnosticosCsv(diagnosticosFiltrados)
   }
 
-  // Aplica filtros localmente (temperatura + solução + busca por nome — AND lógico)
+  // Aplica filtros localmente (temperatura + solução + status + busca por nome — AND lógico)
   const termoBusca = buscaNome.trim().toLowerCase()
   const diagnosticosFiltrados = diagnosticos.filter((d) => {
     if (filtroTemperatura !== 'todas' && d.temperatura_lead !== filtroTemperatura) return false
     if (filtroSolucao !== 'todas' && d.solucao_recomendada !== filtroSolucao) return false
+    const statusAtual = d.status_followup || 'novo'
+    if (filtroFollowup !== 'todos' && statusAtual !== filtroFollowup) return false
     if (termoBusca && !(d.nome || '').toLowerCase().includes(termoBusca)) return false
     return true
   })
@@ -269,6 +313,11 @@ const Dashboard: React.FC = () => {
         const na = (a.nome || '').toLowerCase()
         const nb = (b.nome || '').toLowerCase()
         return na.localeCompare(nb, 'pt-BR') * dirMult
+      }
+      if (sortKey === 'followup') {
+        const fa = a.status_followup || 'novo'
+        const fb = b.status_followup || 'novo'
+        return fa.localeCompare(fb, 'pt-BR') * dirMult
       }
       // temperatura
       const va = a.temperatura_lead ? (ORDENACAO_TEMPERATURA[a.temperatura_lead] ?? 99) : 99
@@ -584,7 +633,7 @@ const Dashboard: React.FC = () => {
         )}
 
         {/* Filtros + busca por nome */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-white/70 uppercase tracking-wider">
               Buscar por nome
@@ -630,6 +679,24 @@ const Dashboard: React.FC = () => {
                 {SOLUCOES.map((s) => (
                   <SelectItem key={s} value={s}>
                     {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold text-white/70 uppercase tracking-wider">
+              Status Follow-up
+            </Label>
+            <Select value={filtroFollowup} onValueChange={setFiltroFollowup}>
+              <SelectTrigger className="bg-white/5 border-white/15 text-white rounded-xl h-11 focus:border-[#B69D64] focus:ring-[#B69D64]">
+                <SelectValue placeholder="Todos os status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os status</SelectItem>
+                {STATUS_FOLLOWUP_OPTIONS.map((st) => (
+                  <SelectItem key={st} value={st}>
+                    {STATUS_FOLLOWUP_LABELS[st]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -873,6 +940,21 @@ const Dashboard: React.FC = () => {
                     <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
                       <button
                         type="button"
+                        onClick={() => alternarOrdenacao('followup')}
+                        className="inline-flex items-center gap-1 cursor-pointer hover:text-[#D4B97A] transition-colors"
+                      >
+                        Follow-up
+                        {sortKey === 'followup' &&
+                          (sortDir === 'asc' ? (
+                            <ArrowUp className="w-3 h-3 text-[#B69D64]" />
+                          ) : (
+                            <ArrowDown className="w-3 h-3 text-[#B69D64]" />
+                          ))}
+                      </button>
+                    </th>
+                    <th className="px-4 py-3.5 font-bold text-white/80 uppercase tracking-wider text-xs whitespace-nowrap">
+                      <button
+                        type="button"
                         onClick={() => alternarOrdenacao('data')}
                         className="inline-flex items-center gap-1 cursor-pointer hover:text-[#D4B97A] transition-colors"
                       >
@@ -888,42 +970,100 @@ const Dashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {diagnosticosOrdenados.map((d) => (
-                    <tr
-                      key={d.id}
-                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">
-                        {d.nome || '-'}
-                      </td>
-                      <td className="px-4 py-3 text-white/80 whitespace-nowrap font-mono text-xs">
-                        {formatarWhatsapp(d.whatsapp)}
-                      </td>
-                      <td className="px-4 py-3 text-white/80 whitespace-nowrap">
-                        {d.email || '-'}
-                      </td>
-                      <td className="px-4 py-3 text-white/70 max-w-[220px]">
-                        <span className="line-clamp-2">{d.momento_atual || '-'}</span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span
-                          className={cn(
-                            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border',
-                            temperaturaStyles[d.temperatura_lead] ||
-                              'bg-white/10 text-white/70 border-white/20',
+                  {diagnosticosOrdenados.map((d) => {
+                    const statusAtual: StatusFollowup =
+                      (d.status_followup as StatusFollowup) || 'novo'
+                    const estaAtualizando = atualizandoStatusId === d.id
+
+                    return (
+                      <tr
+                        key={d.id}
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">
+                          {d.nome || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-white/80 whitespace-nowrap font-mono text-xs">
+                          {formatarWhatsapp(d.whatsapp)}
+                        </td>
+                        <td className="px-4 py-3 text-white/80 whitespace-nowrap">
+                          {d.email || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-white/70 max-w-[200px]">
+                          <span className="line-clamp-2">{d.momento_atual || '-'}</span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span
+                            className={cn(
+                              'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border',
+                              temperaturaStyles[d.temperatura_lead] ||
+                                'bg-white/10 text-white/70 border-white/20',
+                            )}
+                          >
+                            {d.temperatura_lead || '-'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-white/80 max-w-[220px]">
+                          <span className="line-clamp-2">{d.solucao_recomendada || '-'}</span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {d.id ? (
+                            <Select
+                              value={statusAtual}
+                              disabled={estaAtualizando}
+                              onValueChange={(val) =>
+                                handleUpdateStatus(d.id!, val as StatusFollowup)
+                              }
+                            >
+                              <SelectTrigger
+                                className={cn(
+                                  'h-7 px-2 text-xs font-bold rounded-lg border transition-all cursor-pointer min-w-[125px]',
+                                  followupStyles[statusAtual],
+                                )}
+                              >
+                                {estaAtualizando ? (
+                                  <span className="inline-flex items-center gap-1 text-[11px]">
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    Salvando...
+                                  </span>
+                                ) : (
+                                  <SelectValue>{STATUS_FOLLOWUP_LABELS[statusAtual]}</SelectValue>
+                                )}
+                              </SelectTrigger>
+                              <SelectContent className="bg-[#0A1E4A] border border-[#B69D64]/40 text-white">
+                                {STATUS_FOLLOWUP_OPTIONS.map((st) => (
+                                  <SelectItem
+                                    key={st}
+                                    value={st}
+                                    className="text-xs hover:bg-white/10 focus:bg-white/15 focus:text-white cursor-pointer"
+                                  >
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <span
+                                        className={cn(
+                                          'w-2 h-2 rounded-full',
+                                          st === 'novo' && 'bg-sky-400',
+                                          st === 'contatado' && 'bg-[#D4B97A]',
+                                          st === 'em_negociacao' && 'bg-amber-400',
+                                          st === 'ganho' && 'bg-emerald-400',
+                                          st === 'perdido' && 'bg-rose-400',
+                                        )}
+                                      />
+                                      {STATUS_FOLLOWUP_LABELS[st]}
+                                    </span>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <span className="text-xs text-white/50">-</span>
                           )}
-                        >
-                          {d.temperatura_lead || '-'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-white/80 max-w-[260px]">
-                        <span className="line-clamp-2">{d.solucao_recomendada || '-'}</span>
-                      </td>
-                      <td className="px-4 py-3 text-white/60 whitespace-nowrap text-xs">
-                        {formatarData(d.created)}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-4 py-3 text-white/60 whitespace-nowrap text-xs">
+                          {formatarData(d.created)}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>

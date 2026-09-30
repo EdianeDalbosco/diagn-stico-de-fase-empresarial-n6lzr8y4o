@@ -1,12 +1,12 @@
 // Endpoint público para envio do PDF do diagnóstico por e-mail ao lead
-// e uma cópia para a administradora (Ediane).
-// Recebe multipart/form-data com: nome, email, whatsapp, solucao, temperatura e pdf.
+// e uma cópia para a administradora (Ediane Dalbosco).
+// Recebe multipart/form-data ou json com: nome, email, whatsapp, solucao, temperatura e pdf.
 // Constrói o e-mail com resumo + PDF em anexo e dispara via PocketBase.
 // Um hook por arquivo — toda a lógica fica inline no callback.
 //
-// Observação: o envio depende do SMTP configurado na instância PocketBase
-// (Admin > Settings > Mail). Se não estiver configurado, retorna 503 e o
-// frontend exibe um aviso — sem bloquear o fluxo de sucesso do diagnóstico.
+// Observação: o envio depende de SMTP configurado na instância PocketBase.
+// Caso o SMTP não esteja configurado, retorna 503 com mensagem clara e registra
+// nos logs para diagnóstico fácil pelo time/administrador, sem quebrar o fluxo.
 routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
   const body = e.requestInfo().body || {}
   const nome = (body.nome || '').toString()
@@ -19,7 +19,33 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     return e.json(400, { ok: false, error: 'E-mail do lead inválido.' })
   }
 
-  // Recupera o PDF enviado (campo "pdf")
+  // Verifica configuração de SMTP no PocketBase
+  let smtpConfigurado = false
+  try {
+    const settings = $app.settings()
+    if (settings && settings.smtp && settings.smtp.enabled && settings.smtp.host) {
+      smtpConfigurado = true
+    }
+  } catch (_) {
+    smtpConfigurado = false
+  }
+
+  if (!smtpConfigurado) {
+    console.log(
+      '[enviar_pdf_diagnostico] [AVISO] Servidor SMTP não está configurado no backend PocketBase ($app.settings().smtp.enabled = false ou host ausente). ' +
+        'O e-mail para o lead (' +
+        emailDestino +
+        ') e cópia para o admin não foram enviados.',
+    )
+    return e.json(503, {
+      ok: false,
+      error:
+        'Servidor de e-mail (SMTP) não configurado na plataforma. O lead e admin não receberam o e-mail.',
+      smtpConfigured: false,
+    })
+  }
+
+  // Recupera o PDF enviado (campo "pdf") se houver
   let pdfFile = null
   try {
     const uploaded = e.findUploadedFiles('pdf') || []
@@ -28,14 +54,19 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     pdfFile = null
   }
 
-  // E-mail da administradora — opcional. Se ausente no env, utiliza o e-mail padrão edianedalbosco@gmail.com.
-  const envAdminEmail = $os.getenv('ADMIN_EMAIL')
-  if (!envAdminEmail) {
-    console.log(
-      '[WARN enviar_pdf_diagnostico] Secret ADMIN_EMAIL não definida no ambiente do backend! Usando fallback.',
-    )
+  // E-mail da administradora: obtém via $os.getenv ou collection app_config ou fallback
+  let adminEmail = ($os.getenv('ADMIN_EMAIL') || '').toString().trim().toLowerCase()
+  if (!adminEmail) {
+    try {
+      const configRecord = $app.findFirstRecordByData('app_config', 'chave', 'admin_email')
+      if (configRecord) {
+        adminEmail = configRecord.getString('valor').trim().toLowerCase()
+      }
+    } catch (_) {}
   }
-  const adminEmail = (envAdminEmail || 'edianedalbosco@gmail.com').toString().trim().toLowerCase()
+  if (!adminEmail) {
+    adminEmail = 'edianedalbosco@gmail.com'
+  }
 
   const senderAddress = $app.settings().meta.senderAddress || 'no-reply@edvanced.com.br'
   const senderName = $app.settings().meta.senderName || 'Edvanced'
@@ -49,7 +80,7 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
       .replace(/"/g, '&quot;')
   }
 
-  // Link público do dashboard (gestão dos diagnósticos pela administradora)
+  // Link público do dashboard
   const siteUrl = ($os.getenv('SITE_URL') || '').toString().replace(/\/+$/, '')
   const dashboardUrl = siteUrl ? siteUrl + '/dashboard' : '/dashboard'
 
@@ -147,7 +178,12 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
   } catch (err) {
     leadSent = false
     leadError = err && err.message ? err.message : String(err)
-    console.log('Erro ao enviar PDF para o lead (' + emailDestino + '): ' + leadError)
+    console.log(
+      '[enviar_pdf_diagnostico] Erro ao enviar PDF para o lead (' +
+        emailDestino +
+        '): ' +
+        leadError,
+    )
   } finally {
     if (leadReader) {
       try {
@@ -177,7 +213,12 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     } catch (err) {
       adminSent = false
       adminError = err && err.message ? err.message : String(err)
-      console.log('Erro ao enviar cópia para o admin (' + adminEmail + '): ' + adminError)
+      console.log(
+        '[enviar_pdf_diagnostico] Erro ao enviar cópia para o admin (' +
+          adminEmail +
+          '): ' +
+          adminError,
+      )
     } finally {
       if (adminReader) {
         try {
@@ -187,15 +228,17 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
     }
   }
 
-  // Se pelo menos o lead recebeu, consideramos sucesso. O envio do admin é
-  // best-effort e nunca deve impedir o sucesso do fluxo do lead.
   if (leadSent) {
-    return e.json(200, { ok: true })
+    console.log(
+      '[enviar_pdf_diagnostico] E-mail enviado com sucesso para lead ' +
+        emailDestino +
+        (adminSent ? ' e cópia para ' + adminEmail : ''),
+    )
+    return e.json(200, { ok: true, adminSent: adminSent })
   }
 
-  // Lead não recebeu — o SMTP pode não estar configurado.
-  return e.json(503, {
+  return e.json(500, {
     ok: false,
-    error: 'Não foi possível enviar o e-mail neste momento. O SMTP pode não estar configurado.',
+    error: 'Falha no envio de e-mail: ' + leadError,
   })
 })
