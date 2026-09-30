@@ -206,11 +206,19 @@ const Dashboard: React.FC = () => {
     setEntrando(true)
     setErroLogin(null)
     try {
-      const res = await fetch(`${pb.baseUrl}/api/dashboard-login`, {
+      let res = await fetch(`${pb.baseUrl}/backend/v1/dashboard-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: senha }),
       })
+      if (res.status === 404) {
+        // Fallback de rota caso o ambiente sirva em /api/
+        res = await fetch(`${pb.baseUrl}/api/dashboard-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: senha }),
+        })
+      }
       if (res.ok) {
         setAutenticado(true)
       } else {

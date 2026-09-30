@@ -118,11 +118,17 @@ export async function enviarPdfPorEmail(data: {
     form.append('temperatura', data.temperatura_lead)
     form.append('pdf', pdfBlob, 'diagnostico.pdf')
 
-    const res = await fetch(`${pb.baseUrl}/api/enviar-pdf-diagnostico`, {
+    let res = await fetch(`${pb.baseUrl}/backend/v1/enviar-pdf-diagnostico`, {
       method: 'POST',
       body: form,
     })
-
+    if (res.status === 404) {
+      // Fallback de rota caso o ambiente sirva em /api/
+      res = await fetch(`${pb.baseUrl}/api/enviar-pdf-diagnostico`, {
+        method: 'POST',
+        body: form,
+      })
+    }
     if (res.ok) return { ok: true }
 
     let errorMsg = 'Não foi possível enviar o e-mail.'

@@ -7,7 +7,7 @@
 // Observação: o envio depende do SMTP configurado na instância PocketBase
 // (Admin > Settings > Mail). Se não estiver configurado, retorna 503 e o
 // frontend exibe um aviso — sem bloquear o fluxo de sucesso do diagnóstico.
-routerAdd('POST', '/api/enviar-pdf-diagnostico', (e) => {
+routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
   const body = e.requestInfo().body || {}
   const nome = (body.nome || '').toString()
   const emailDestino = (body.email || '').toString().trim().toLowerCase()
