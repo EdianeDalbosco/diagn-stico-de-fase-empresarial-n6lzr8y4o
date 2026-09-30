@@ -29,10 +29,13 @@ routerAdd('POST', '/backend/v1/enviar-pdf-diagnostico', (e) => {
   }
 
   // E-mail da administradora — opcional. Se ausente no env, utiliza o e-mail padrão edianedalbosco@gmail.com.
-  const adminEmail = ($os.getenv('ADMIN_EMAIL') || 'edianedalbosco@gmail.com')
-    .toString()
-    .trim()
-    .toLowerCase()
+  const envAdminEmail = $os.getenv('ADMIN_EMAIL')
+  if (!envAdminEmail) {
+    console.log(
+      '[WARN enviar_pdf_diagnostico] Secret ADMIN_EMAIL não definida no ambiente do backend! Usando fallback.',
+    )
+  }
+  const adminEmail = (envAdminEmail || 'edianedalbosco@gmail.com').toString().trim().toLowerCase()
 
   const senderAddress = $app.settings().meta.senderAddress || 'no-reply@edvanced.com.br'
   const senderName = $app.settings().meta.senderName || 'Edvanced'

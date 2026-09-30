@@ -4,7 +4,13 @@
 routerAdd('POST', '/backend/v1/dashboard-login', (e) => {
   const body = e.requestInfo().body || {}
   const provided = (body.password || '').toString()
-  const expected = $os.getenv('DASHBOARD_PASSWORD') || 'Diag09161012*'
+  const envPassword = $os.getenv('DASHBOARD_PASSWORD')
+  if (!envPassword) {
+    console.log(
+      '[WARN dashboard_login] Secret DASHBOARD_PASSWORD não está definida no ambiente do backend!',
+    )
+  }
+  const expected = envPassword || 'Diag09161012*'
 
   if (!expected || provided !== expected) {
     return e.json(401, { success: false })
