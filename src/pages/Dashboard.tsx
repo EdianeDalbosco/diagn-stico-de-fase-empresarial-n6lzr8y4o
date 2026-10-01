@@ -49,6 +49,11 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { exportarDiagnosticosCsv } from '@/lib/csvExport'
+import { NotificationBell } from '@/components/NotificationBell'
+import { useToast } from '@/hooks/use-toast'
+import { useRealtime } from '@/hooks/use-realtime'
+
+const STORAGE_KEY_ULTIMA_VISUALIZACAO = 'edvanced_dashboard_ultima_visualizacao_ts'
 
 // Lista fixa de soluções recomendadas possíveis (espelha src/types/diagnostico.ts)
 const SOLUCOES: SolucaoRecomendada[] = [
@@ -144,29 +149,37 @@ const formatarWhatsapp = (digits: string): string => {
 }
 
 // Marca/Topo compartilhado entre as telas do dashboard
-const DashboardHeader: React.FC = () => (
-  <div className="flex items-center gap-3 mb-8">
-    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#102A6B] via-[#1A3A8A] to-[#102A6B] flex items-center justify-center text-[#B69D64] shadow-md shadow-black/20 border border-[#B69D64]/40 shrink-0">
-      <Bird className="w-5 h-5 stroke-[2]" />
-    </div>
-    <div>
-      <div className="flex items-center gap-2">
-        <span className="font-black text-base sm:text-lg tracking-widest text-white uppercase">
-          EDVANCED
-        </span>
-        <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-[#B69D64]/20 text-[#D4B97A] border border-[#B69D64]/40">
-          DASHBOARD
-        </span>
+interface DashboardHeaderProps {
+  rightElement?: React.ReactNode
+}
+
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ rightElement }) => (
+  <div className="flex items-center justify-between gap-3 mb-8">
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#102A6B] via-[#1A3A8A] to-[#102A6B] flex items-center justify-center text-[#B69D64] shadow-md shadow-black/20 border border-[#B69D64]/40 shrink-0">
+        <Bird className="w-5 h-5 stroke-[2]" />
       </div>
-      <p className="text-[11px] sm:text-xs font-medium text-white/60 tracking-wide">
-        Hub de Desenvolvimento &amp; Soluções Empresariais
-      </p>
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="font-black text-base sm:text-lg tracking-widest text-white uppercase">
+            EDVANCED
+          </span>
+          <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-[#B69D64]/20 text-[#D4B97A] border border-[#B69D64]/40">
+            DASHBOARD
+          </span>
+        </div>
+        <p className="text-[11px] sm:text-xs font-medium text-white/60 tracking-wide">
+          Hub de Desenvolvimento &amp; Soluções Empresariais
+        </p>
+      </div>
     </div>
+    {rightElement && <div>{rightElement}</div>}
   </div>
 )
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [autenticado, setAutenticado] = useState(false)
   const [senha, setSenha] = useState('')
   const [erroLogin, setErroLogin] = useState<string | null>(null)
@@ -176,6 +189,20 @@ const Dashboard: React.FC = () => {
   const [diagnosticos, setDiagnosticos] = useState<DiagnosticoRecord[]>([])
   const [carregando, setCarregando] = useState(false)
   const [erroLista, setErroLista] = useState<string | null>(null)
+
+  // Timestamp da última visualização para controle de novidades (persistido em localStorage)
+  const [ultimaVisualizacao, setUltimaVisualizacao] = useState<number>(() => {
+    try {
+      const salvo = localStorage.getItem(STORAGE_KEY_ULTIMA_VISUALIZACAO)
+      if (salvo) {
+        const parsed = parseInt(salvo, 10)
+        if (!Number.isNaN(parsed)) return parsed
+      }
+    } catch {
+      // Ignora erro em ambientes restritos de localStorage
+    }
+    return 0
+  })
 
   // Filtros
   const [filtroTemperatura, setFiltroTemperatura] = useState<string>('todas')
@@ -229,6 +256,80 @@ const Dashboard: React.FC = () => {
     }
   }, [autenticado, carregar])
 
+  // Polling leve a cada 20s como garantia de conectividade além do realtime
+  useEffect(() => {
+    if (!autenticado) return
+    const intervalo = setInterval(() => {
+      carregar()
+    }, 20000)
+    return () => clearInterval(intervalo)
+  }, [autenticado, carregar])
+
+  // Callback realtime para inserções e atualizações na collection diagnosticos
+  const handleRealtimeRecord = useCallback(
+    (e: { action: string; record: any }) => {
+      if (!autenticado) return
+      const { action, record } = e
+      const leadRecord = record as DiagnosticoRecord
+
+      if (action === 'create') {
+        setDiagnosticos((prev) => {
+          // Evita duplicar se já estiver na lista
+          if (prev.some((d) => d.id === leadRecord.id)) return prev
+          return [leadRecord, ...prev]
+        })
+
+        const isQuente = (leadRecord.temperatura_lead || '').trim().toLowerCase() === 'quente'
+        toast({
+          title: isQuente
+            ? `🔥 NOVO LEAD QUENTE — ${leadRecord.nome || 'Lead'}`
+            : `Novo diagnóstico recebido — ${leadRecord.nome || 'Lead'}`,
+          description: `${leadRecord.solucao_recomendada || 'Solução calculada'} · Temperatura: ${leadRecord.temperatura_lead || 'Frio'}`,
+          className: isQuente
+            ? 'bg-[#0A1E4A] border-2 border-rose-500 text-white shadow-2xl shadow-rose-950/50'
+            : 'bg-[#0A1E4A] border border-[#B69D64] text-white shadow-xl',
+        })
+      } else if (action === 'update') {
+        setDiagnosticos((prev) =>
+          prev.map((item) => (item.id === leadRecord.id ? { ...item, ...leadRecord } : item)),
+        )
+      } else if (action === 'delete') {
+        setDiagnosticos((prev) => prev.filter((item) => item.id !== leadRecord.id))
+      }
+    },
+    [autenticado, toast],
+  )
+
+  useRealtime('diagnosticos', handleRealtimeRecord, autenticado)
+
+  // Marcar todos os leads como vistos pelo admin
+  const handleMarcarTodosComoVistos = useCallback(() => {
+    const agora = Date.now()
+    setUltimaVisualizacao(agora)
+    try {
+      localStorage.setItem(STORAGE_KEY_ULTIMA_VISUALIZACAO, String(agora))
+    } catch {
+      // Ignora erro de localStorage
+    }
+  }, [])
+
+  // Leads novos não vistos:
+  // Critério: status_followup === 'novo' E (se ultimaVisualizacao estiver setada, criado após ela OU primeira vez sem timestamp)
+  const leadsNaoVistos = useMemo(() => {
+    return diagnosticos.filter((d) => {
+      const isNovo = (d.status_followup || 'novo') === 'novo'
+      if (!isNovo) return false
+      if (!ultimaVisualizacao) return true
+      const createdTs = d.created ? new Date(d.created).getTime() : 0
+      return createdTs > ultimaVisualizacao
+    })
+  }, [diagnosticos, ultimaVisualizacao])
+
+  const contadorNaoVistos = leadsNaoVistos.length
+  const temNovosQuentes = useMemo(() => {
+    return leadsNaoVistos.some((d) => (d.temperatura_lead || '').trim().toLowerCase() === 'quente')
+  }, [leadsNaoVistos])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setEntrando(true)
@@ -269,6 +370,16 @@ const Dashboard: React.FC = () => {
     setFiltroFollowup('todos')
     setBuscaNome('')
   }
+
+  // Ao clicar em um lead na notificação, filtra por ele ou localiza na tabela
+  const handleSelecionarLeadNotificacao = useCallback((lead: DiagnosticoRecord) => {
+    if (lead.nome) {
+      setBuscaNome(lead.nome)
+    }
+    setFiltroTemperatura('todas')
+    setFiltroSolucao('todas')
+    setFiltroFollowup('todos')
+  }, [])
 
   const handleUpdateStatus = async (id: string, novoStatus: StatusFollowup) => {
     setAtualizandoStatusId(id)
@@ -498,7 +609,19 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0A1E4A] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <DashboardHeader />
+        <DashboardHeader
+          rightElement={
+            <div className="flex items-center gap-2">
+              <NotificationBell
+                leadsNaoVistos={leadsNaoVistos}
+                contadorNaoVistos={contadorNaoVistos}
+                temNovosQuentes={temNovosQuentes}
+                onMarcarTodosComoVistos={handleMarcarTodosComoVistos}
+                onSelecionarLead={handleSelecionarLeadNotificacao}
+              />
+            </div>
+          }
+        />
 
         {/* Barra superior do dashboard */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
